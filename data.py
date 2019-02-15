@@ -45,7 +45,7 @@ def fetch_imgs_from_dir(data_dir, extension='png'):
     return images
 
 
-def fetch_data(gesture_label):
+def fetch_data(gesture_label = 1):
     general_path = './senz3d_dataset/acquisitions/'
 
     all_img = []
@@ -86,11 +86,18 @@ def crop_img(img, w=100, h=100):
 
 
 
-# imgs = fetch_data_test()
-# print('len', len(imgs))
-# cv2.imshow('thing', imgs[0])
+# img1 = fetch_data(1)[0]
+# img2 = fetch_data(2)[36]
+# img3 = fetch_data(3)[69]
+# img4 = fetch_data(4)[12]
+# img5 = fetch_data(5)[77]
+# # print('len', len(imgs))
+# # cv2.imshow('thing', imgs[0])
 #
-# img1_crop = crop_img([imgs[0]])
-# cv2.imshow('cropped', img1_crop)
+# cv2.imshow('cropped1', crop_img(img1))
+# cv2.imshow('cropped2', crop_img(img2))
+# cv2.imshow('cropped3', crop_img(img3))
+# cv2.imshow('cropped4', crop_img(img4))
+# cv2.imshow('cropped5', crop_img(img5))
 #
 # cv2.waitKey(0)
