@@ -45,12 +45,12 @@ def fetch_imgs_from_dir(data_dir, extension='png'):
     return images
 
 
-def fetch_data():
+def fetch_data(gesture_label):
     general_path = './senz3d_dataset/acquisitions/'
 
     all_img = []
     for j in range(1, 4):
-        data_dir = general_path + 'S' + str(j) + '/G1/'
+        data_dir = general_path + 'S' + str(j) + '/G' + str(gesture_label) + '/'
         all_img.extend(fetch_imgs_from_dir(data_dir, 'png'))
 
     all_img = [crop_img(x) for x in all_img]
