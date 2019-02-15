@@ -50,9 +50,10 @@ def fetch_data():
 
     all_img = []
     for j in range(1, 4):
-        data_dir = general_path + 'S' + str(j) + '/G' + str(j) + '/'
+        data_dir = general_path + 'S' + str(j) + '/G1/'
         all_img.extend(fetch_imgs_from_dir(data_dir, 'png'))
 
+    all_img = [crop_img(x) for x in all_img]
     return all_img
 
 
@@ -61,8 +62,35 @@ def fetch_data_test():
     return fetch_imgs_from_dir(general_path, 'png')
 
 
-imgs = fetch_data_test()
-print('len', len(imgs))
-cv2.imshow('thing', imgs[0])
+def crop_img(img, w=100, h=100):
+    im = Image.fromarray(img)
 
-cv2.waitKey(0)
+    # Resize the image so that the bounding box of (w, h) is completely filled!
+    width = im.width
+    height = im.height
+    ratio_w = width / w
+    ratio_h = height / h
+    min_ratio = min(ratio_w, ratio_h)
+    new_width = int(width / min_ratio)
+    new_height = int(height / min_ratio)
+    im = im.resize((new_width, new_height))
+
+    # Get the ideal center.
+    left = (new_width - w) / 2
+    top = (new_height - h) / 2
+    right = (new_width + w) / 2
+    bottom = (new_height + h) / 2
+    im = im.crop((left, top, right, bottom))
+
+    return np.array(im)
+
+
+
+# imgs = fetch_data_test()
+# print('len', len(imgs))
+# cv2.imshow('thing', imgs[0])
+#
+# img1_crop = crop_img([imgs[0]])
+# cv2.imshow('cropped', img1_crop)
+#
+# cv2.waitKey(0)
