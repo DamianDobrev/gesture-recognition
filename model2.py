@@ -29,7 +29,7 @@ img_channels = 1
 
 
 # Batch_size to train
-batch_size = 8 # 32
+batch_size = 4 # 32
 
 ## Number of output classes (change it accordingly)
 ## eg: In my case I wanted to predict 4 types of gestures (Ok, Peace, Punch, Stop)
@@ -37,7 +37,7 @@ batch_size = 8 # 32
 nb_classes = 3
 
 # Number of epochs to train (change it accordingly)
-nb_epoch = 100  #25
+nb_epoch = 20  #25
 
 # Total number of convolutional filters to use
 nb_filters = 32
@@ -170,9 +170,7 @@ def split_data(data_label_tuples):
     all_data = np.array(all_data)
     all_labels = np.array(all_labels)
     x_train, x_test, y_train, y_test = train_test_split(all_data, all_labels, test_size=0.2, random_state=4)
-    print('y_train',y_train)
-    print('np.array(y_train',np.array(y_train))
-    print('y_test',y_test)
+
     return np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test)
 
 
@@ -185,25 +183,13 @@ imgs_fist = data.fetch_data(5)
 # for j, img in enumerate(imgs[25:35]):
 #     cv2.imshow('thing' + str(j), img)
 
-
 # Splitting data to labels
 # ...
-# X_train, X_test, Y_train, Y_test = split_data(imgs)
 X_train, X_test, Y_train, Y_test = split_data([(imgs_palm, 0), (imgs_peace, 1), (imgs_fist, 2)])
-# print('\n\n\n\n\ntrain\n\n\n\n')
-# print(len(X_train))
-# print(Y_train)
-# print('\n\n\n\n\ntest\n\n\n\n')
-# print(len(X_test))
-# print(Y_test)
-
 
 # Train model
 # ...
-# TODO
 model = create_model()
-ones = np.full(2, 7)
-print(ones)
 train_model(model, X_train, X_test, Y_train, Y_test)
 
 

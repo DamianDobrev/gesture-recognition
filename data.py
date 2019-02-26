@@ -46,7 +46,7 @@ def fetch_imgs_from_dir(data_dir, extension='png'):
 
 
 def fetch_data(gesture_label = 1):
-    general_path = './senz3d_dataset/acquisitions/'
+    general_path = './_skip/senz3d_dataset/acquisitions/'
 
     all_img = []
     for j in range(1, 4):
@@ -58,7 +58,7 @@ def fetch_data(gesture_label = 1):
 
 
 def fetch_data_test():
-    general_path = './test_img/'
+    general_path = './_skip/test_img/'
     return fetch_imgs_from_dir(general_path, 'png')
 
 

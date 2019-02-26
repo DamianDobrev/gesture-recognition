@@ -18,6 +18,9 @@ from tensorflow.python.keras.utils import np_utils
 
 from image_processor import to_gray
 
+# Local modules.
+import data
+
 K.set_image_dim_ordering('th')
 
 img_rows, img_cols = 200, 200
@@ -26,7 +29,7 @@ img_channels = 1
 
 
 # Batch_size to train
-batch_size = 4 # 32
+batch_size = 8 # 32
 
 ## Number of output classes (change it accordingly)
 ## eg: In my case I wanted to predict 4 types of gestures (Ok, Peace, Punch, Stop)
@@ -131,7 +134,7 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
 
 
 def split_data(data):
-    label = classes[0] # Zeros...
+    label = classes[1] # Zeros...
     data, Label = shuffle(data, np.zeros(len(data)), random_state=2)
     train_data = [data, Label]
 
@@ -188,8 +191,8 @@ def fetch_data():
 
 
 def train_img_crop():
-    immatrix = fetch_data()
-    X_train, X_test, Y_train, Y_test = split_data(immatrix)
+    imgs = data.fetch_data()
+    X_train, X_test, Y_train, Y_test = split_data(imgs)
     train_model(create_model(), X_train, X_test, Y_train, Y_test)
     # print(immatrix.shape)
 

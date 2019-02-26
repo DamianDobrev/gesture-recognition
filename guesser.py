@@ -71,13 +71,13 @@ img = cv2.imread('training_img_crop/skin001.png')
 # cv2.imshow('111111',img)
 # img = ip.to_gray(img)
 # cv2.imshow('222222',img)
-print('start guessing')
-
-model = md.create_model()
-layer = model.layers[11]
-get_output = K.function([model.layers[0].input, K.learning_phase()], [layer.output,])
-guessed = guessGesture(model, img)
-print('guessed')
-print(guessed)
+# print('start guessing')
+#
+# model = md.create_model()
+# layer = model.layers[11]
+# get_output = K.function([model.layers[0].input, K.learning_phase()], [layer.output,])
+# guessed = guessGesture(model, img)
+# print('guessed')
+# print(guessed)
 
 cv2.waitKey(0)
