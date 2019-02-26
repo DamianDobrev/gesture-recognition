@@ -4,6 +4,7 @@ import os
 import numpy as np
 from PIL import Image
 
+prefix_path = '_skip/'
 
 def to_monochrome(img):
     monochrome_img = np.array(Image.fromarray(img).convert('L'))
@@ -46,7 +47,7 @@ def fetch_imgs_from_dir(data_dir, extension='png'):
 
 
 def fetch_data(gesture_label = 1):
-    general_path = './_skip/senz3d_dataset/acquisitions/'
+    general_path = './' + prefix_path + 'senz3d_dataset/acquisitions/'
 
     all_img = []
     for j in range(1, 4):
@@ -58,7 +59,7 @@ def fetch_data(gesture_label = 1):
 
 
 def fetch_data_test():
-    general_path = './_skip/test_img/'
+    general_path = './' + prefix_path + 'test_img/'
     return fetch_imgs_from_dir(general_path, 'png')
 
 
