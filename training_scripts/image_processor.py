@@ -8,20 +8,23 @@ from skimage.measure import regionprops
 bbthresh = 10
 
 class ImageProcessor:
-    def __init__(self, lower, upper):
+    def __init__(self, size, lower, upper):
+        self.size = size
         self.lower = np.array(lower, dtype = "uint8")
         self.upper = np.array(upper, dtype = "uint8")
 
+    def crop(self, img):
+        frame = img[0:self.size, 0:self.size]
+        return frame
 
-    def preprocess_frame(self, image):
-        # TODO Add preprocessing here.
-        # cv2.imshow('blah', image)
-
+    def extract_skin(self, image):
         frame = image
         # resize the frame, convert it to the HSV color space,
         # and determine the HSV pixel intensities that fall into
         # the speicifed upper and lower boundaries
         converted = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
+        converted = cv2.GaussianBlur(converted, (3, 3), 0)
+
         skinMask = cv2.inRange(converted, self.lower, self.upper)
 
         # apply a series of erosions and dilations to the mask
@@ -32,26 +35,25 @@ class ImageProcessor:
 
         # blur the mask to help remove noise, then apply the
         # mask to the frame
-        skinMask = cv2.GaussianBlur(skinMask, (1, 1), 0)
 
         skin = cv2.bitwise_and(frame, frame, mask=skinMask)
 
         # show the skin in the image along with the mask
         return skin
 
-    def in_binary(self, image):
-        new_img = cv2.cvtColor(image, cv2.COLOR_HSV2RGB)
-        new_img = cv2.cvtColor(new_img, cv2.COLOR_RGB2GRAY)
-        height, width = new_img.shape[:2]
+    def hsv_to_binary(self, image):
+        binary_img = cv2.cvtColor(image, cv2.COLOR_HSV2RGB)
+        binary_img = cv2.cvtColor(binary_img, cv2.COLOR_RGB2GRAY)
+        height, width = binary_img.shape[:2]
         for y in range(0, height):
             for x in range(0, width):
                 # threshold the pixel
-                new_img[y, x] = 255 if new_img[y, x] >= 10 else 0
+                binary_img[y, x] = 255 if binary_img[y, x] >= 10 else 0
 
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        new_img = cv2.morphologyEx(new_img, cv2.MORPH_OPEN, kernel)
+        binary_img = cv2.morphologyEx(binary_img, cv2.MORPH_OPEN, kernel)
 
-        return new_img
+        return binary_img
 
     def find_largest_connected_component(self, img):
         new_img = np.zeros_like(img)  # step 1
@@ -60,12 +62,10 @@ class ImageProcessor:
             labels, stats = cv2.connectedComponentsWithStats(mask, 4)[1:3]  # step 4
             largest_label = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])  # step 5
             new_img[labels == largest_label] = val  # step 6
-
-        print(new_img)
         return new_img
 
-    def find_bounding_box_of_single_component(self, mask_binary):
-        mask_label = label(mask_binary)
+    def find_bounding_box_of_binary_img_with_single_component(self, binary_img):
+        mask_label = label(binary_img)
         props = regionprops(mask_label)
         if len(props) > 0:
             # We only need the first one since it's a single component.
@@ -107,4 +107,7 @@ class ImageProcessor:
 
 
         return [bbox[0], int(new_top_left_x), bbox[2], int(new_bottom_right_x)]
+
+    def crop_image_by_bbox(self, frame, square_bbox):
+        pass
 

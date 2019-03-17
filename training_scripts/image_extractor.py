@@ -26,10 +26,6 @@ from training_scripts import image_processor
 size = 200
 path_to_captured_images = './captured_images/'
 
-def crop(img):
-    frame = img[0:size, 0:size]
-    return frame
-
 def capture_video_and_extract_images(class_number, milliseconds=200):
     cap = cv2.VideoCapture(0)
 
@@ -39,7 +35,7 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
 
     path_output_dir = path_to_captured_images + str(class_number) + '/'
 
-    ip = image_processor.ImageProcessor([110, 24, 34], [179, 255, 255])
+    ip = image_processor.ImageProcessor(size, [110, 24, 34], [179, 255, 255])
 
     if not os.path.exists(path_output_dir):
         os.makedirs(path_output_dir)
@@ -47,23 +43,26 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
     while True:
         ret, frame = cap.read()
         frame = imutils.resize(frame, height=size)
-        frame = crop(frame)
+        frame = ip.crop(frame)
 
-        processed = ip.preprocess_frame(frame)
+        processed = ip.extract_skin(frame)
         # edges = ip.edges(frame)
 
-        thr = ip.in_binary(processed)
+        thr = ip.hsv_to_binary(processed)
         mask_binary = ip.find_largest_connected_component(thr)
 
         # Find bounding boxes.
-        bbox = ip.find_bounding_box_of_single_component(mask_binary)
+        bbox = ip.find_bounding_box_of_binary_img_with_single_component(mask_binary)
         frame_with_bbox = ip.add_bounding_box_to_img(frame, bbox)
         height, width = mask_binary.shape
         square_bbox = ip.get_square_bbox(bbox, width, height)
-        frame_bboxes = ip.add_bounding_box_to_img(frame_with_bbox, square_bbox, (0, 255, 0))
+        frame_with_bboxes = ip.add_bounding_box_to_img(frame_with_bbox, square_bbox, (0, 255, 0))
+
+        # Crop frame to the correct bounding box.
+        cropped_image = ip.crop_image_by_bbox(frame, square_bbox)
 
         # print('Found bbox', bbox)
-        cv2.imshow('Img with Bbox + processing.', np.vstack([frame_bboxes, processed]))
+        cv2.imshow('Img with Bbox + processing.', np.vstack([frame_with_bboxes, processed]))
         # cv2.imshow('Mask with Bbox.', mask_with_bbox)
 
         if is_saving_images:
@@ -71,7 +70,7 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
             time_diff = cur_time - last_time
             time_diff_milliseconds = time_diff.total_seconds() * 1000
             if time_diff_milliseconds >= milliseconds:
-                cv2.imwrite(os.path.join(path_output_dir, 'raw_%02d.png') % count, frame_bboxes)
+                cv2.imwrite(os.path.join(path_output_dir, 'raw_%02d.png') % count, frame_with_bboxes)
                 count += 1
                 print(count)
         else:
