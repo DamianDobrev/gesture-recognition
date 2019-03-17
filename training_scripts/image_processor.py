@@ -74,5 +74,37 @@ class ImageProcessor:
         # height, width = mask_binary.shape
         return [0, 0, 0, 0] # Default, if the mask is full of zeros we need to return something.
 
-    def add_bounding_box_to_img(self, mask_binary, bbox):
-        return cv2.rectangle(mask_binary, (bbox[1] - bbthresh, bbox[0] - bbthresh), (bbox[3] + bbthresh, bbox[2] + bbthresh), (255, 0, 0), 2)
+    def add_bounding_box_to_img(self, img, bbox, color=(30, 0, 255)):
+        return cv2.rectangle(img.copy(), (bbox[1] - bbthresh, bbox[0] - bbthresh), (bbox[3] + bbthresh, bbox[2] + bbthresh), color, 2)
+
+    def get_square_bbox(self, bbox, frame_width, frame_height):
+        """
+        Returns square new image .
+        :param frame:
+        :param bbox: in format [top_left_Y, top_left_X, bottom_right_Y, bottom_right_X]
+        :return:
+        """
+
+        width = bbox[3] - bbox[1]
+        height = bbox[2] - bbox[0]
+
+        new_top_left_x = bbox[1]
+        new_bottom_right_x = bbox[3]
+
+        if height >= width:
+            diff = (height - width) / 2
+
+            new_top_left_x = bbox[1] - diff
+            new_bottom_right_x = bbox[3] + diff
+
+            # Calc new top left x and new bottom left x
+            if new_top_left_x < 0:
+                new_bottom_right_x = bbox[3] - bbox[1] + diff*2
+                new_top_left_x = 0
+            elif new_bottom_right_x > frame_width:
+                new_top_left_x = frame_width - (bbox[3] - bbox[1]) - diff*2
+                new_bottom_right_x = frame_width
+
+
+        return [bbox[0], int(new_top_left_x), bbox[2], int(new_bottom_right_x)]
+

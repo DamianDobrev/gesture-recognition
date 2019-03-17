@@ -55,21 +55,23 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
         thr = ip.in_binary(processed)
         mask_binary = ip.find_largest_connected_component(thr)
 
-        # Find bounding box.
+        # Find bounding boxes.
         bbox = ip.find_bounding_box_of_single_component(mask_binary)
-        print('Found bbox', bbox)
-        mask_with_bbox = ip.add_bounding_box_to_img(mask_binary, bbox)
-        frame = ip.add_bounding_box_to_img(frame, bbox)
+        frame_with_bbox = ip.add_bounding_box_to_img(frame, bbox)
+        height, width = mask_binary.shape
+        square_bbox = ip.get_square_bbox(bbox, width, height)
+        frame_bboxes = ip.add_bounding_box_to_img(frame_with_bbox, square_bbox, (0, 255, 0))
 
-        cv2.imshow('Img with Bbox + processing.', np.vstack([frame, processed]))
-        cv2.imshow('Mask with Bbox.', mask_with_bbox)
+        # print('Found bbox', bbox)
+        cv2.imshow('Img with Bbox + processing.', np.vstack([frame_bboxes, processed]))
+        # cv2.imshow('Mask with Bbox.', mask_with_bbox)
 
         if is_saving_images:
             cur_time = datetime.now()
             time_diff = cur_time - last_time
             time_diff_milliseconds = time_diff.total_seconds() * 1000
             if time_diff_milliseconds >= milliseconds:
-                cv2.imwrite(os.path.join(path_output_dir, 'raw_%02d.png') % count, frame)
+                cv2.imwrite(os.path.join(path_output_dir, 'raw_%02d.png') % count, frame_bboxes)
                 count += 1
                 print(count)
         else:
