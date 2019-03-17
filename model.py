@@ -15,12 +15,13 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 from matplotlib import pyplot as plt
 
+import config
 import data
 
 import os
 
-from tensorflow.contrib.learn.python.learn.estimators._sklearn import train_test_split
-from tensorflow.python.keras.utils import np_utils
+# from tensorflow.contrib.learn.python.learn.estimators._sklearn import train_test_split
+# from tensorflow.python.keras.utils import np_utils
 
 from image_processor import to_gray
 
@@ -30,7 +31,7 @@ img_rows, img_cols = 100, 100
 
 img_channels = 1
 
-results_path = '_results'
+results_path = config.CONFIG['path_to_results']
 
 # Batch_size to train
 batch_size = 4 # 32
@@ -119,7 +120,11 @@ def visualizeHis(hist):
     plt.show()
 
 def save_info(file_dir = '.'):
+    # TODO (complete)
     f = open(file_dir + '/info.txt', 'w+')
+    for i in range(10):
+        f.write("This is line %d\r\n" % (i + 1))
+    f.close()
 
 
 
@@ -192,23 +197,27 @@ def split_data(data_label_tuples):
     return np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test)
 
 
-# Data fetching
-# ...
-imgs_palm = data.fetch_data(1)
-imgs_peace = data.fetch_data(2)
-imgs_fist = data.fetch_data(5)
-# print('len', len(imgs))
-# for j, img in enumerate(imgs[25:35]):
-#     cv2.imshow('thing' + str(j), img)
+# # Data fetching
+# # ...
+# imgs_palm = data.fetch_data(1)
+# imgs_peace = data.fetch_data(2)
+# imgs_fist = data.fetch_data(5)
+# # print('len', len(imgs))
+# # for j, img in enumerate(imgs[25:35]):
+# #     cv2.imshow('thing' + str(j), img)
+#
+# # Splitting data to labels
+# # ...
+# X_train, X_test, Y_train, Y_test = split_data([(imgs_palm, 0), (imgs_peace, 1), (imgs_fist, 2)])
+#
+# # Train model
+# # ...
+# model = create_model()
+# train_model(model, X_train, X_test, Y_train, Y_test)
+#
+#
+# cv2.waitKey(0)
 
-# Splitting data to labels
-# ...
-X_train, X_test, Y_train, Y_test = split_data([(imgs_palm, 0), (imgs_peace, 1), (imgs_fist, 2)])
-
-# Train model
-# ...
-model = create_model()
-train_model(model, X_train, X_test, Y_train, Y_test)
-
-
-cv2.waitKey(0)
+if not os.path.exists('./test_result'):
+    os.makedirs('./test_result')
+save_info('./test_result')
