@@ -27,7 +27,7 @@ size = 200
 path_to_captured_images = './captured_images/'
 
 def crop(img):
-    frame = img[0:200, 100:300]
+    frame = img[0:size, 0:size]
     return frame
 
 def capture_video_and_extract_images(class_number, milliseconds=200):
@@ -39,22 +39,30 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
 
     path_output_dir = path_to_captured_images + str(class_number) + '/'
 
-    ip = image_processor.ImageProcessor([120, 24, 34], [179, 255, 255])
+    ip = image_processor.ImageProcessor([110, 24, 34], [179, 255, 255])
 
     if not os.path.exists(path_output_dir):
         os.makedirs(path_output_dir)
 
     while True:
         ret, frame = cap.read()
-        frame = imutils.resize(frame, width=size)
+        frame = imutils.resize(frame, height=size)
         frame = crop(frame)
 
         processed = ip.preprocess_frame(frame)
         # edges = ip.edges(frame)
-        cv2.imshow('processed', np.vstack([frame, processed]))
 
         thr = ip.in_binary(processed)
-        cv2.imshow('shit', thr)
+        mask_binary = ip.find_largest_connected_component(thr)
+
+        # Find bounding box.
+        bbox = ip.find_bounding_box_of_single_component(mask_binary)
+        print('Found bbox', bbox)
+        mask_with_bbox = ip.add_bounding_box_to_img(mask_binary, bbox)
+        frame = ip.add_bounding_box_to_img(frame, bbox)
+
+        cv2.imshow('Img with Bbox + processing.', np.vstack([frame, processed]))
+        cv2.imshow('Mask with Bbox.', mask_with_bbox)
 
         if is_saving_images:
             cur_time = datetime.now()
