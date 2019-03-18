@@ -19,28 +19,17 @@ class ImageProcessor:
         return frame
 
     def extract_skin(self, image):
-        frame = image
-        # resize the frame, convert it to the HSV color space,
-        # and determine the HSV pixel intensities that fall into
-        # the speicifed upper and lower boundaries
-        converted = cv2.cvtColor(frame, cv2.COLOR_RGB2HSV)
-        converted = cv2.GaussianBlur(converted, (3, 3), 0)
+        frame_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
+        frame_hsv = cv2.GaussianBlur(frame_hsv, (5, 5), 0)
 
-        skinMask = cv2.inRange(converted, self.lower, self.upper)
+        skin_mask = cv2.inRange(frame_hsv, self.lower, self.upper)
 
-        # apply a series of erosions and dilations to the mask
-        # using an elliptical kernel
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        skinMask = cv2.erode(skinMask, kernel, iterations=2)
-        skinMask = cv2.dilate(skinMask, kernel, iterations=2)
+        # 2 erode, 2 dilate also works well.
+        skin_mask = cv2.erode(skin_mask, kernel, iterations=4)
+        skin_mask = cv2.dilate(skin_mask, kernel, iterations=2)
 
-        # blur the mask to help remove noise, then apply the
-        # mask to the frame
-
-        skin = cv2.bitwise_and(frame, frame, mask=skinMask)
-
-        # show the skin in the image along with the mask
-        return skin
+        return cv2.bitwise_and(image, image, mask=skin_mask)
 
     def hsv_to_binary(self, image):
         binary_img = cv2.cvtColor(image, cv2.COLOR_HSV2RGB)
