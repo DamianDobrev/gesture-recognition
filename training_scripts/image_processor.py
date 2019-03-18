@@ -133,10 +133,9 @@ class ImageProcessor:
 
         return [int(new_top_left_y), int(new_top_left_x), int(new_bottom_right_y), int(new_bottom_right_x)]
 
-    def crop_image_by_bbox(self, frame, square_bbox, size_width):
-        print('BBOX_SQ?', square_bbox[3]-square_bbox[1], square_bbox[2]-square_bbox[0])
-        # if square_bbox[2]-square_bbox[0] != square_bbox[3]-square_bbox[1]:
-        #     raise AttributeError('crop_image_by_bbox only accepts square bboxes')
+    def crop_image_by_square_bbox(self, frame, square_bbox, size_width):
+        if square_bbox[2]-square_bbox[0] != square_bbox[3]-square_bbox[1]:
+            raise AttributeError('crop_image_by_square_bbox should only accept square bboxes')
         new_frame = frame[square_bbox[0]:square_bbox[2], square_bbox[1]:square_bbox[3]]
         height, width = new_frame.shape[:2]
         to_return = new_frame if width > 0 and height > 0 else frame

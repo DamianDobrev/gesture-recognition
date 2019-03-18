@@ -46,7 +46,6 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
         frame = ip.crop(frame)
 
         processed = ip.extract_skin(frame)
-        # edges = ip.edges(frame)
 
         thr = ip.hsv_to_binary(processed)
         mask_binary = ip.find_largest_connected_component(thr)
@@ -58,26 +57,27 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
         frame_with_bboxes = ip.add_bounding_box_to_img(frame_with_bbox, square_bbox, (0, 255, 0))
 
         # Crop frame to the correct bounding box.
-        cropped_image = ip.crop_image_by_bbox(frame, square_bbox, size)
-        height, width = cropped_image.shape[:2]
-        # print('square?', width, height)
-        cv2.imshow('copped', cropped_image)
-        cv2.imshow('mask_binary', ip.add_bounding_box_to_img(mask_binary, square_bbox, (0, 255, 255)))
+        cropped_image = ip.crop_image_by_square_bbox(frame, square_bbox, size)
 
-        # print('Found bbox', bbox)
-        cv2.imshow('Img with Bbox + processing.', np.vstack([frame_with_bboxes, processed]))
-        # cv2.imshow('Mask with Bbox.', mask_with_bbox)
+        # Also crop the binary mask.
+        cropped_binary_mask = ip.crop_image_by_square_bbox(mask_binary, square_bbox, size)
+        cropped_binary_mask = cv2.cvtColor(cropped_binary_mask, cv2.COLOR_GRAY2RGB)
+
+        window_name = 'Img with Bbox + processing.'
+        cv2.namedWindow(window_name)
+        cv2.moveWindow(window_name, 40, 40)
+        cv2.imshow(window_name, np.hstack([frame_with_bboxes, processed, cropped_image, cropped_binary_mask]))
 
         if is_saving_images:
             cur_time = datetime.now()
             time_diff = cur_time - last_time
             time_diff_milliseconds = time_diff.total_seconds() * 1000
             if time_diff_milliseconds >= milliseconds:
-                cv2.imwrite(os.path.join(path_output_dir, 'raw_%02d.png') % count, frame_with_bboxes)
+                cv2.imwrite(os.path.join(path_output_dir, 'raw_%02d.png') % count, cropped_image)
                 count += 1
                 print(count)
         else:
-            print('press "s" to start capturing images')
+            print('press "s" to start saving images')
 
         if cv2.waitKey(1) & 0xFF == ord('s'):
             is_saving_images = not is_saving_images
@@ -89,5 +89,5 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
     cap.release()
     cv2.destroyAllWindows()
 
-capture_video_and_extract_images(2)
+capture_video_and_extract_images(1)
 cv2.waitKey(0)
