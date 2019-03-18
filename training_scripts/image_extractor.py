@@ -25,6 +25,7 @@ from training_scripts import image_processor
 
 size = 200
 path_to_captured_images = './captured_images/'
+path_to_captured_masks = './captured_masks/'
 
 def capture_video_and_extract_images(class_number, milliseconds=200):
     cap = cv2.VideoCapture(0)
@@ -34,11 +35,14 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
     last_time = datetime.now()
 
     path_output_dir = path_to_captured_images + str(class_number) + '/'
+    path_masks_output_dir = path_to_captured_masks + str(class_number) + '/'
 
-    ip = image_processor.ImageProcessor(size, [110, 24, 34], [179, 255, 255])
+    ip = image_processor.ImageProcessor(size, [102, 40, 34], [179, 255, 255])
 
     if not os.path.exists(path_output_dir):
         os.makedirs(path_output_dir)
+    if not os.path.exists(path_masks_output_dir):
+        os.makedirs(path_masks_output_dir)
 
     while True:
         ret, frame = cap.read()
@@ -66,6 +70,8 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
         window_name = 'Img with Bbox + processing.'
         cv2.namedWindow(window_name)
         cv2.moveWindow(window_name, 40, 40)
+        height, width = frame_with_bboxes.shape[:2]
+        cv2.rectangle(frame_with_bboxes, (int(width/2-3), int(height/2-3)), (int(width/2 + 3), int(height/2+3)), (255, 255, 0), 1)
         cv2.imshow(window_name, np.hstack([frame_with_bboxes, processed, cropped_image, cropped_binary_mask]))
 
         if is_saving_images:
@@ -74,6 +80,7 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
             time_diff_milliseconds = time_diff.total_seconds() * 1000
             if time_diff_milliseconds >= milliseconds:
                 cv2.imwrite(os.path.join(path_output_dir, 'raw_%02d.png') % count, cropped_image)
+                cv2.imwrite(os.path.join(path_masks_output_dir, 'raw_%02d.png') % count, cropped_binary_mask)
                 count += 1
                 print(count)
         else:

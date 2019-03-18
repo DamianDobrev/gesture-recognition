@@ -8,6 +8,7 @@ from skimage.measure import regionprops
 
 bbthresh = 20
 
+
 class ImageProcessor:
     def __init__(self, size, lower, upper):
         self.size = size
@@ -20,13 +21,18 @@ class ImageProcessor:
 
     def extract_skin(self, image):
         frame_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-        frame_hsv = cv2.GaussianBlur(frame_hsv, (5, 5), 0)
+        frame_hsv = cv2.GaussianBlur(frame_hsv, (3, 3), 0)
+        # frame_hsv = cv2.medianBlur(frame_hsv, 3)
+        # frame_hsv = cv2.bilateralFilter(frame_hsv, 3, 35, 35)
+        # frame_hsv = cv2.addWeighted(frame_hsv, 2, frame_hsv, -1, 0)
+
+        print('centre hsv:', frame_hsv[int(self.size/2), int(self.size/2)])
 
         skin_mask = cv2.inRange(frame_hsv, self.lower, self.upper)
 
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
         # 2 erode, 2 dilate also works well.
-        skin_mask = cv2.erode(skin_mask, kernel, iterations=4)
+        skin_mask = cv2.erode(skin_mask, kernel, iterations=3)
         skin_mask = cv2.dilate(skin_mask, kernel, iterations=2)
 
         return cv2.bitwise_and(image, image, mask=skin_mask)
@@ -40,8 +46,21 @@ class ImageProcessor:
                 # threshold the pixel
                 binary_img[y, x] = 255 if binary_img[y, x] >= 10 else 0
 
-        kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        binary_img = cv2.morphologyEx(binary_img, cv2.MORPH_OPEN, kernel)
+        def smooth_binary(img_in):
+            img = img_in.copy()
+
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+            img = cv2.erode(img, kernel, iterations=3)
+            img = cv2.dilate(img, kernel, iterations=2)
+            return img
+
+        def fill_holes(img_in):
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
+            output = cv2.morphologyEx(img_in, cv2.MORPH_OPEN, kernel)
+            return output
+
+        binary_img = smooth_binary(binary_img)
+        binary_img = fill_holes(binary_img)
 
         return binary_img
 
@@ -65,7 +84,7 @@ class ImageProcessor:
             # want the image to contain the bounding box.
             bbox = [max(bbox[0] - thresh, 0), max(bbox[1] - thresh, 0), min(bbox[2] + thresh, height), min(bbox[3] + thresh, width)]
             return bbox
-        return [0, 0, 0, 0] # Default, if the mask is full of zeros we need to return something.
+        return [0, 0, 0, 0]  # Default, if the mask is full of zeros we need to return something.
 
     def add_bounding_box_to_img(self, img, bbox, color=(30, 0, 255), thresh=0):
         return cv2.rectangle(img.copy(), (bbox[1] - thresh, bbox[0] - thresh), (bbox[3] + thresh, bbox[2] + thresh), color, 2)
