@@ -1,11 +1,12 @@
 import cv2
+import imutils
 import numpy as np
 from PIL import Image
 from matplotlib.pyplot import cm
 from skimage.morphology import label
 from skimage.measure import regionprops
 
-bbthresh = 10
+bbthresh = 20
 
 class ImageProcessor:
     def __init__(self, size, lower, upper):
@@ -64,50 +65,81 @@ class ImageProcessor:
             new_img[labels == largest_label] = val  # step 6
         return new_img
 
-    def find_bounding_box_of_binary_img_with_single_component(self, binary_img):
+    def find_bounding_box_of_binary_img_with_single_component(self, binary_img, thresh=bbthresh):
         mask_label = label(binary_img)
         props = regionprops(mask_label)
+        height, width = binary_img.shape
         if len(props) > 0:
             # We only need the first one since it's a single component.
             bbox = props[0].bbox
+            # Math and min are because by adding/subtracting a threshold, the values may go beyond the image. We
+            # want the image to contain the bounding box.
+            bbox = [max(bbox[0] - thresh, 0), max(bbox[1] - thresh, 0), min(bbox[2] + thresh, height), min(bbox[3] + thresh, width)]
             return bbox
-        # height, width = mask_binary.shape
         return [0, 0, 0, 0] # Default, if the mask is full of zeros we need to return something.
 
-    def add_bounding_box_to_img(self, img, bbox, color=(30, 0, 255)):
-        return cv2.rectangle(img.copy(), (bbox[1] - bbthresh, bbox[0] - bbthresh), (bbox[3] + bbthresh, bbox[2] + bbthresh), color, 2)
+    def add_bounding_box_to_img(self, img, bbox, color=(30, 0, 255), thresh=0):
+        return cv2.rectangle(img.copy(), (bbox[1] - thresh, bbox[0] - thresh), (bbox[3] + thresh, bbox[2] + thresh), color, 2)
 
-    def get_square_bbox(self, bbox, frame_width, frame_height):
+    def get_square_bbox(self, bbox, image, thresh=0):
         """
-        Returns square new image .
-        :param frame:
+        Takes an image and a rectangular bbox, and returns a squared bbox which "envelops" the rectangular bbox.
+        Threshold can be provided as well. TODO test the threshold.
+        :param image: an image. Can be 1 or 3 dimensions.
         :param bbox: in format [top_left_Y, top_left_X, bottom_right_Y, bottom_right_X]
         :return:
         """
+        image_height, image_width = image.shape if image.ndim == 1 else image.shape[:2]
 
-        width = bbox[3] - bbox[1]
-        height = bbox[2] - bbox[0]
+        new_top_left_x = bbox[1] - thresh
+        new_bottom_right_x = bbox[3] + thresh
 
-        new_top_left_x = bbox[1]
-        new_bottom_right_x = bbox[3]
+        new_top_left_y = bbox[0] - thresh
+        new_bottom_right_y = bbox[2] + thresh
 
-        if height >= width:
-            diff = (height - width) / 2
+        new_bbox_width = new_bottom_right_x - new_top_left_x
+        new_bbox_height = new_bottom_right_y - new_top_left_y
 
-            new_top_left_x = bbox[1] - diff
-            new_bottom_right_x = bbox[3] + diff
+        def crop_axis(lower_bbox_val, higher_bbox_val, frame_size_on_axis, diff, new_size):
+            lower_new_val = lower_bbox_val - diff
+            higher_new_val = higher_bbox_val + diff
 
             # Calc new top left x and new bottom left x
-            if new_top_left_x < 0:
-                new_bottom_right_x = bbox[3] - bbox[1] + diff*2
-                new_top_left_x = 0
-            elif new_bottom_right_x > frame_width:
-                new_top_left_x = frame_width - (bbox[3] - bbox[1]) - diff*2
-                new_bottom_right_x = frame_width
+            if lower_new_val < 0:
+                higher_new_val = new_size
+                lower_new_val = 0
+            elif higher_new_val > frame_size_on_axis:
+                lower_new_val = frame_size_on_axis - new_size
+                higher_new_val = frame_size_on_axis
 
+            return lower_new_val, higher_new_val
 
-        return [bbox[0], int(new_top_left_x), bbox[2], int(new_bottom_right_x)]
+        if new_bbox_height > new_bbox_width:
+            px_to_add_to_each_side = (new_bbox_height - new_bbox_width) / 2
+            new_top_left_x, new_bottom_right_x = crop_axis(new_top_left_x, new_bottom_right_x, image_width, px_to_add_to_each_side, new_bbox_height)
+        else:
+            px_to_add_to_each_side = (new_bbox_width - new_bbox_height) / 2
+            new_top_left_y, new_bottom_right_y = crop_axis(new_top_left_y, new_bottom_right_y, image_height, px_to_add_to_each_side, new_bbox_width)
 
-    def crop_image_by_bbox(self, frame, square_bbox):
-        pass
+        # These are important assertions because I get weird values.
+        if new_bottom_right_y > image_height:
+            raise ArithmeticError('Bottom edge should not be higher than frame height.')
+        elif new_top_left_y < 0:
+            raise ArithmeticError('Top edge should not be less than 0.')
+        elif new_bottom_right_x > image_width:
+            raise ArithmeticError('Right edge should not be higher than frame width.')
+        elif new_top_left_x < 0:
+            raise ArithmeticError('Left edge should not be less than 0.')
+
+        return [int(new_top_left_y), int(new_top_left_x), int(new_bottom_right_y), int(new_bottom_right_x)]
+
+    def crop_image_by_bbox(self, frame, square_bbox, size_width):
+        print('BBOX_SQ?', square_bbox[3]-square_bbox[1], square_bbox[2]-square_bbox[0])
+        # if square_bbox[2]-square_bbox[0] != square_bbox[3]-square_bbox[1]:
+        #     raise AttributeError('crop_image_by_bbox only accepts square bboxes')
+        new_frame = frame[square_bbox[0]:square_bbox[2], square_bbox[1]:square_bbox[3]]
+        height, width = new_frame.shape[:2]
+        to_return = new_frame if width > 0 and height > 0 else frame
+        return imutils.resize(to_return, height=size_width)
+        # return to_return
 

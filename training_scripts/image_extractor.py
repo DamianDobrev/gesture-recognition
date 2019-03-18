@@ -54,12 +54,15 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
         # Find bounding boxes.
         bbox = ip.find_bounding_box_of_binary_img_with_single_component(mask_binary)
         frame_with_bbox = ip.add_bounding_box_to_img(frame, bbox)
-        height, width = mask_binary.shape
-        square_bbox = ip.get_square_bbox(bbox, width, height)
+        square_bbox = ip.get_square_bbox(bbox, frame)
         frame_with_bboxes = ip.add_bounding_box_to_img(frame_with_bbox, square_bbox, (0, 255, 0))
 
         # Crop frame to the correct bounding box.
-        cropped_image = ip.crop_image_by_bbox(frame, square_bbox)
+        cropped_image = ip.crop_image_by_bbox(frame, square_bbox, size)
+        height, width = cropped_image.shape[:2]
+        # print('square?', width, height)
+        cv2.imshow('copped', cropped_image)
+        cv2.imshow('mask_binary', ip.add_bounding_box_to_img(mask_binary, square_bbox, (0, 255, 255)))
 
         # print('Found bbox', bbox)
         cv2.imshow('Img with Bbox + processing.', np.vstack([frame_with_bboxes, processed]))
