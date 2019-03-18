@@ -37,7 +37,8 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
     path_output_dir = path_to_captured_images + str(class_number) + '/'
     path_masks_output_dir = path_to_captured_masks + str(class_number) + '/'
 
-    ip = image_processor.ImageProcessor(size, [102, 40, 34], [179, 255, 255])
+    # ip = image_processor.ImageProcessor(size, [102, 40, 34], [179, 255, 255])  # Works well at home in daylight.
+    ip = image_processor.ImageProcessor(size, [104, 25, 34], [179, 255, 180])
 
     if not os.path.exists(path_output_dir):
         os.makedirs(path_output_dir)
@@ -68,8 +69,8 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
         cropped_binary_mask = cv2.cvtColor(cropped_binary_mask, cv2.COLOR_GRAY2RGB)
 
         window_name = 'Img with Bbox + processing.'
-        cv2.namedWindow(window_name)
-        cv2.moveWindow(window_name, 40, 40)
+        # cv2.namedWindow(window_name)
+        # cv2.moveWindow(window_name, 40, 40)
         height, width = frame_with_bboxes.shape[:2]
         cv2.rectangle(frame_with_bboxes, (int(width/2-3), int(height/2-3)), (int(width/2 + 3), int(height/2+3)), (255, 255, 0), 1)
         cv2.imshow(window_name, np.hstack([frame_with_bboxes, processed, cropped_image, cropped_binary_mask]))
@@ -96,5 +97,5 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
     cap.release()
     cv2.destroyAllWindows()
 
-capture_video_and_extract_images(1)
+capture_video_and_extract_images(5)
 cv2.waitKey(0)

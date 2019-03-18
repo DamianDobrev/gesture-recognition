@@ -3,6 +3,7 @@ import imutils
 import numpy as np
 from PIL import Image
 from matplotlib.pyplot import cm
+from scipy import ndimage
 from skimage.morphology import label
 from skimage.measure import regionprops
 
@@ -48,10 +49,10 @@ class ImageProcessor:
 
         def smooth_binary(img_in):
             img = img_in.copy()
-
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-            img = cv2.erode(img, kernel, iterations=3)
-            img = cv2.dilate(img, kernel, iterations=2)
+            # Enable for daylight!
+            # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+            # img = cv2.erode(img, kernel, iterations=3)
+            # img = cv2.dilate(img, kernel, iterations=2)
             return img
 
         def fill_holes(img_in):
@@ -59,8 +60,19 @@ class ImageProcessor:
             output = cv2.morphologyEx(img_in, cv2.MORPH_OPEN, kernel)
             return output
 
+        def binary_fill_holes(img_in):
+            im_out = ndimage.binary_fill_holes(img_in).astype(int)
+            shit = img_in
+            height, width = im_out.shape
+            # do it in manual way because im_out has weird depth for some reason
+            for y in range(0, height):
+                for x in range(0, width):
+                    shit[y, x] = 255 if im_out[y, x] >= 1 else 0
+            return shit
+
         binary_img = smooth_binary(binary_img)
         binary_img = fill_holes(binary_img)
+        binary_img = binary_fill_holes(binary_img)
 
         return binary_img
 
