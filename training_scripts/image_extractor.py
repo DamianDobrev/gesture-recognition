@@ -80,7 +80,7 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
             time_diff = cur_time - last_time
             time_diff_milliseconds = time_diff.total_seconds() * 1000
             if time_diff_milliseconds >= milliseconds:
-                cv2.imwrite(os.path.join(path_output_dir, 'raw_%02d.png') % count, cropped_image)
+                cv2.imwrite(os.path.join(path_output_dir, 'raw_%03d.png') % count, cropped_image)
                 cv2.imwrite(os.path.join(path_masks_output_dir, 'raw_%02d.png') % count, cropped_binary_mask)
                 count += 1
                 print(count)

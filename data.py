@@ -13,11 +13,15 @@ def to_monochrome(img):
 
 def read_and_process_img_from_file(file_path):
     img = cv2.imread(file_path)
-    monochrome_img = to_monochrome(img)
-    return monochrome_img
+    img = cv2.resize(img, (50, 50))
+    print(file_path, img.shape)
+    img = to_monochrome(img)
+    img = np.array([img])
+    print('imgshape', img.shape)  # should be like (1, 50, 50)
+    return img
 
 
-def fetch_imgs_from_dir(data_dir, extension='png'):
+def fetch_imgs_from_dir(data_dir, extension='png', num_entries=100):
     """
     Returns np.array of monochrome images.
     :param data_dir: String showing the data dir.
@@ -38,52 +42,22 @@ def fetch_imgs_from_dir(data_dir, extension='png'):
     images = []
     file_names = get_file_names_from_dir(data_dir, extension)
 
-    for file_name in file_names:
-        images.append(read_and_process_img_from_file(data_dir + file_name))
-
-    images = np.array(images)
+    for idx, file_name in enumerate(file_names):
+        if idx >= num_entries:
+            break
+        img = read_and_process_img_from_file(data_dir + file_name)
+        images.append(img)
 
     return images
 
 
-def fetch_data(gesture_label = 1):
-    general_path = './' + prefix_path + 'senz3d_dataset/acquisitions/'
-
-    all_img = []
-    for j in range(1, 4):
-        data_dir = general_path + 'S' + str(j) + '/G' + str(gesture_label) + '/'
-        all_img.extend(fetch_imgs_from_dir(data_dir, 'png'))
-
-    all_img = [crop_img(x) for x in all_img]
-    return all_img
-
-
-def fetch_data_test():
-    general_path = './' + prefix_path + 'test_img/'
-    return fetch_imgs_from_dir(general_path, 'png')
-
-
-def crop_img(img, w=100, h=100):
-    im = Image.fromarray(img)
-
-    # Resize the image so that the bounding box of (w, h) is completely filled!
-    width = im.width
-    height = im.height
-    ratio_w = width / w
-    ratio_h = height / h
-    min_ratio = min(ratio_w, ratio_h)
-    new_width = int(width / min_ratio)
-    new_height = int(height / min_ratio)
-    im = im.resize((new_width, new_height))
-
-    # Get the ideal center.
-    left = (new_width - w) / 2
-    top = (new_height - h) / 2
-    right = (new_width + w) / 2
-    bottom = (new_height + h) / 2
-    im = im.crop((left, top, right, bottom))
-
-    return np.array(im)
+def fetch_training_images_binary(path=prefix_path):
+    files = os.listdir(path)
+    classes = []
+    for name in files:
+        class_num = int(name) - 1
+        classes.append((fetch_imgs_from_dir(path + name + '/', 'png'), class_num))
+    return classes
 
 
 
