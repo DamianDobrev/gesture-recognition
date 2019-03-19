@@ -1,35 +1,21 @@
 from datetime import datetime
-import time
 
 import cv2
 import imutils
 
-from PIL import Image
-
-from keras import backend as K
-from keras import Sequential
-from keras.layers import Conv2D, Activation, MaxPooling2D, Dropout, Flatten, Dense
 # from sklearn.utils import shuffle
-from keras.utils import to_categorical
-from sklearn.utils import shuffle
-from sklearn.model_selection import train_test_split
 import numpy as np
-from matplotlib import pyplot as plt
-
-import config
-import data
-
 
 import os
 
-from training_scripts.predictor import predict
-from training_scripts import image_processor
+from training.predictor import predict
+from image_processing import image_processor
 
 size = 200
 path_to_captured_images = './captured_images/'
 path_to_captured_masks = './captured_masks/'
 
-def capture_video_and_extract_images(class_number, milliseconds=200):
+def loop(class_number, milliseconds=200):
     cap = cv2.VideoCapture(0)
 
     count = 1
@@ -118,5 +104,5 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
     cap.release()
     cv2.destroyAllWindows()
 
-capture_video_and_extract_images(999)
+loop(999)
 cv2.waitKey(0)

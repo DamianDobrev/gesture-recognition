@@ -2,10 +2,10 @@ import numpy as np
 
 from keras.models import load_model
 
-from data import process_img_for_train_or_predict
+from image_processing.image_processor import process_img_for_train_or_predict
 
 model_folder_name = '2019-03-18__23-55-36'
-model = load_model('../__results/' + model_folder_name + '/model.hdf5')
+model = load_model('./__results/' + model_folder_name + '/model.hdf5')
 
 classes_to_text = {
     0: 'STOP',

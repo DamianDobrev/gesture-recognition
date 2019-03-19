@@ -1,13 +1,23 @@
 import cv2
-import imutils
 import numpy as np
 from PIL import Image
-from matplotlib.pyplot import cm
 from scipy import ndimage
 from skimage.morphology import label
 from skimage.measure import regionprops
 
 bbthresh = 20
+
+
+def to_monochrome(img):
+    monochrome_img = np.array(Image.fromarray(img).convert('L'))
+    return monochrome_img
+
+
+def process_img_for_train_or_predict(img):
+    img = cv2.resize(img, (50, 50))
+    img = to_monochrome(img)
+    img = np.array([img])  # shape should be like (1, 50, 50)
+    return img
 
 
 class ImageProcessor:
@@ -27,7 +37,7 @@ class ImageProcessor:
         # frame_hsv = cv2.bilateralFilter(frame_hsv, 3, 35, 35)
         # frame_hsv = cv2.addWeighted(frame_hsv, 2, frame_hsv, -1, 0)
 
-        print('centre hsv:', frame_hsv[int(self.size/2), int(self.size/2)])
+        center_px_hsv = frame_hsv[int(self.size/2), int(self.size/2)]
 
         skin_mask = cv2.inRange(frame_hsv, self.lower, self.upper)
 
@@ -160,5 +170,3 @@ class ImageProcessor:
         height, width = new_frame.shape[:2]
         to_return = new_frame if width > 0 and height > 0 else frame
         return cv2.resize(to_return, (size_width, size_width))
-        # return to_return
-

@@ -1,21 +1,9 @@
 import cv2
 import os
 
-import numpy as np
-from PIL import Image
+from image_processing.image_processor import process_img_for_train_or_predict
 
 prefix_path = '_skip/'
-
-def to_monochrome(img):
-    monochrome_img = np.array(Image.fromarray(img).convert('L'))
-    return monochrome_img
-
-
-def process_img_for_train_or_predict(img):
-    img = cv2.resize(img, (50, 50))
-    img = to_monochrome(img)
-    img = np.array([img])  # shape should be like (1, 50, 50)
-    return img
 
 
 def fetch_imgs_from_dir(data_dir, extension='png', num_entries=100):

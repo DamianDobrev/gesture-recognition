@@ -3,13 +3,10 @@ import time
 
 import cv2
 
-from PIL import Image
-
 from keras import backend as K
 from keras import Sequential
 from keras.layers import Conv2D, Activation, MaxPooling2D, Dropout, Flatten, Dense
 # from sklearn.utils import shuffle
-from keras.utils import to_categorical
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import numpy as np
@@ -22,8 +19,6 @@ import os
 
 # from tensorflow.contrib.learn.python.learn.estimators._sklearn import train_test_split
 # from tensorflow.python.keras.utils import np_utils
-
-from image_processor import to_gray
 
 K.set_image_dim_ordering('th')
 
@@ -71,8 +66,6 @@ def visualizeHis(hist):
     plt.title('train_loss vs val_loss')
     plt.grid(True)
     plt.legend(['train','val'])
-    #print plt.style.available # use bmh, classic,ggplot for big pictures
-    #plt.style.use(['classic'])
 
     plt.figure(2,figsize=(7,5))
     plt.plot(xc,train_acc)
@@ -131,7 +124,6 @@ def create_model(num_classes):
 def train_model(model, X_train, X_test, Y_train, Y_test):
     print('Started training...')
 
-
     print('~~~X_train~~~')
     print('ndim', X_train.ndim)
     print('shape', X_train.shape)
@@ -143,8 +135,6 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     print('shape', X_test.shape)
     print('size', X_test.size)
     print('len', len(X_test))
-
-    print('~~~Y_train~~~',Y_train)
 
     print('start training...')
     hist = model.fit(X_train, np.array(Y_train), batch_size=batch_size, epochs=nb_epoch, verbose=1, validation_split=0.2)
