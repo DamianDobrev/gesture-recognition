@@ -99,7 +99,6 @@ def create_model(num_classes):
                      padding='valid',
                      input_shape=(1, img_rows, img_cols)))
 
-    ### FIRST MODEL
     convout1 = Activation('relu')
     model.add(convout1)
     model.add(Conv2D(nb_filters, (nb_conv, nb_conv)))

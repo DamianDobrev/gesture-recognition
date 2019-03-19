@@ -11,13 +11,10 @@ def to_monochrome(img):
     return monochrome_img
 
 
-def read_and_process_img_from_file(file_path):
-    img = cv2.imread(file_path)
+def process_img_for_train_or_predict(img):
     img = cv2.resize(img, (50, 50))
-    print(file_path, img.shape)
     img = to_monochrome(img)
-    img = np.array([img])
-    print('imgshape', img.shape)  # should be like (1, 50, 50)
+    img = np.array([img])  # shape should be like (1, 50, 50)
     return img
 
 
@@ -45,7 +42,8 @@ def fetch_imgs_from_dir(data_dir, extension='png', num_entries=100):
     for idx, file_name in enumerate(file_names):
         if idx >= num_entries:
             break
-        img = read_and_process_img_from_file(data_dir + file_name)
+        img = cv2.imread(data_dir + file_name)
+        img = process_img_for_train_or_predict(img)
         images.append(img)
 
     return images

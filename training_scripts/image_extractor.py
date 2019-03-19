@@ -19,8 +19,10 @@ from matplotlib import pyplot as plt
 import config
 import data
 
+
 import os
 
+from training_scripts.predictor import predict
 from training_scripts import image_processor
 
 size = 200
@@ -32,6 +34,7 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
 
     count = 1
     is_saving_images = False
+    is_predicting = True
     last_time = datetime.now()
 
     path_output_dir = path_to_captured_images + str(class_number) + '/'
@@ -75,7 +78,9 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
         cv2.rectangle(frame_with_bboxes, (int(width/2-3), int(height/2-3)), (int(width/2 + 3), int(height/2+3)), (255, 255, 0), 1)
         cv2.imshow(window_name, np.hstack([frame_with_bboxes, processed, cropped_image, cropped_binary_mask]))
 
-        if is_saving_images:
+        if is_predicting:
+            predict(cropped_binary_mask)
+        elif is_saving_images:
             cur_time = datetime.now()
             time_diff = cur_time - last_time
             time_diff_milliseconds = time_diff.total_seconds() * 1000
@@ -85,17 +90,20 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
                 count += 1
                 print(count)
         else:
-            print('press "s" to start saving images')
+            print('S -> start saving images of class [' + str(class_number) + ']')
+            print('P -> predict...')
 
-        if cv2.waitKey(1) & 0xFF == ord('s'):
-            is_saving_images = not is_saving_images
-
-        if cv2.waitKey(1) & 0xFF == ord('q'):
-            break
+        if cv2.waitKey(1):
+            if cv2.waitKey(1) & 0xFF == ord('s'):
+                is_saving_images = not is_saving_images
+            if cv2.waitKey(1) & 0xFF == ord('b'):
+                is_predicting = not is_predicting
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
 
     # When everything done, release the capture
     cap.release()
     cv2.destroyAllWindows()
 
-capture_video_and_extract_images(5)
+capture_video_and_extract_images(999)
 cv2.waitKey(0)
