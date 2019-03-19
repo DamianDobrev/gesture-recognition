@@ -36,4 +36,4 @@ def predict(img):
     idx = normalized.index(max(normalized))
     print(classes_to_text[idx])
 
-    return idx + 1, normalized  # Class is from 1 to 5. No 0s.
+    return idx + 1, normalized, classes_to_text[idx]  # Class is from 1 to 5. No 0s.

@@ -159,6 +159,6 @@ class ImageProcessor:
         new_frame = frame[square_bbox[0]:square_bbox[2], square_bbox[1]:square_bbox[3]]
         height, width = new_frame.shape[:2]
         to_return = new_frame if width > 0 and height > 0 else frame
-        return imutils.resize(to_return, height=size_width)
+        return cv2.resize(to_return, (size_width, size_width))
         # return to_return
 

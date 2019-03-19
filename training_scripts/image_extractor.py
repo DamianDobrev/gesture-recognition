@@ -71,15 +71,21 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
         cropped_binary_mask = ip.crop_image_by_square_bbox(mask_binary, square_bbox, size)
         cropped_binary_mask = cv2.cvtColor(cropped_binary_mask, cv2.COLOR_GRAY2RGB)
 
-        window_name = 'Img with Bbox + processing.'
-        # cv2.namedWindow(window_name)
-        # cv2.moveWindow(window_name, 40, 40)
-        height, width = frame_with_bboxes.shape[:2]
-        cv2.rectangle(frame_with_bboxes, (int(width/2-3), int(height/2-3)), (int(width/2 + 3), int(height/2+3)), (255, 255, 0), 1)
-        cv2.imshow(window_name, np.hstack([frame_with_bboxes, processed, cropped_image, cropped_binary_mask]))
-
+        prediction_value = np.zeros((200, 200, 3), np.uint8)
+        # Manage input.
         if is_predicting:
-            predict(cropped_binary_mask)
+            class_num, values, text = predict(cropped_binary_mask)
+            font = cv2.FONT_HERSHEY_SIMPLEX
+            bottomLeftCornerOfText = (50, 50)
+            fontScale = 1
+            fontColor = (255, 255, 255)
+            lineType = 2
+            cv2.putText(prediction_value, text,
+                        bottomLeftCornerOfText,
+                        font,
+                        fontScale,
+                        fontColor,
+                        lineType)
         elif is_saving_images:
             cur_time = datetime.now()
             time_diff = cur_time - last_time
@@ -93,6 +99,13 @@ def capture_video_and_extract_images(class_number, milliseconds=200):
             print('S -> start saving images of class [' + str(class_number) + ']')
             print('P -> predict...')
 
+        # Visualize.
+        window_name = 'Img with Bbox + processing.'
+        height, width = frame_with_bboxes.shape[:2]
+        cv2.rectangle(frame_with_bboxes, (int(width/2-3), int(height/2-3)), (int(width/2 + 3), int(height/2+3)), (255, 255, 0), 1)
+        cv2.imshow(window_name, np.hstack([frame_with_bboxes, processed, cropped_image, cropped_binary_mask, prediction_value]))
+
+        # Handle input.
         if cv2.waitKey(1):
             if cv2.waitKey(1) & 0xFF == ord('s'):
                 is_saving_images = not is_saving_images
