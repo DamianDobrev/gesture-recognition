@@ -1,0 +1,1 @@
+Using masked training data, so provide masked 50x50 input.
