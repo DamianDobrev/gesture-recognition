@@ -18,7 +18,6 @@ classes_to_text = {
 
 def normalize_list(l):
     l_sum = sum(l)
-    print('sum:', l_sum)
     norm_val = 100 / l_sum
     new_l = list()
     for entry in l:
@@ -31,9 +30,7 @@ def predict(img):
 
     prediction = model.predict(np.array([img]))
     normalized = normalize_list(list(prediction[0]))
-    print('normalized:', normalized)
 
     idx = normalized.index(max(normalized))
-    print(classes_to_text[idx])
 
     return idx + 1, normalized, classes_to_text[idx]  # Class is from 1 to 5. No 0s.
