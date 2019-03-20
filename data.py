@@ -6,7 +6,7 @@ from image_processing.image_processor import process_img_for_train_or_predict
 prefix_path = '_skip/'
 
 
-def fetch_imgs_from_dir(data_dir, extension='png', num_entries=100):
+def fetch_imgs_from_dir(data_dir, extension='png', num_entries=400):
     """
     Returns np.array of monochrome images.
     :param data_dir: String showing the data dir.
@@ -44,21 +44,3 @@ def fetch_training_images_binary(path=prefix_path):
         class_num = int(name) - 1
         classes.append((fetch_imgs_from_dir(path + name + '/', 'png'), class_num))
     return classes
-
-
-
-# img1 = fetch_data(1)[0]
-# img2 = fetch_data(2)[36]
-# img3 = fetch_data(3)[69]
-# img4 = fetch_data(4)[12]
-# img5 = fetch_data(5)[77]
-# # print('len', len(imgs))
-# # cv2.imshow('thing', imgs[0])
-#
-# cv2.imshow('cropped1', crop_img(img1))
-# cv2.imshow('cropped2', crop_img(img2))
-# cv2.imshow('cropped3', crop_img(img3))
-# cv2.imshow('cropped4', crop_img(img4))
-# cv2.imshow('cropped5', crop_img(img5))
-#
-# cv2.waitKey(0)

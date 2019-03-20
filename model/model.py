@@ -31,11 +31,6 @@ results_path = config.CONFIG['path_to_results']
 # Batch_size to train
 batch_size = 16 # 32
 
-## Number of output classes (change it accordingly)
-## eg: In my case I wanted to predict 4 types of gestures (Ok, Peace, Punch, Stop)
-## NOTE: If you change this then dont forget to change Labels accordingly
-nb_classes = 3
-
 # Number of epochs to train (change it accordingly)
 nb_epoch = 15  #25
 
@@ -45,8 +40,6 @@ nb_filters = 50
 nb_pool = 2
 # Size of convolution kernel
 nb_conv = 3
-
-classes = ['palm', 'peace', 'fist']
 
 
 def visualizeHis(hist):
@@ -192,7 +185,7 @@ save_info('./test_result')
 # Data fetching
 # ...
 
-path = './training_scripts/captured_masks/'
+path = './training_scripts/captured_images/'
 all_img = data.fetch_training_images_binary(path)
 X_train, X_test, Y_train, Y_test = split_data(all_img)
 
