@@ -4,7 +4,9 @@ from keras.models import load_model
 
 from image_processing.image_processor import process_img_for_train_or_predict
 
-model_folder_name = '2019-03-18__23-55-36'
+model_folder_name = '2019-03-18__23-55-36'  # 100 images per class, 5 classes
+# model_folder_name = '2019-03-18__23-55-36'  # 700 images per class, 7 classes
+
 model = load_model('./__results/' + model_folder_name + '/model.hdf5')
 
 classes_to_text = {
@@ -14,6 +16,17 @@ classes_to_text = {
     3: 'LEFT',
     4: 'UPDOWN'
 }
+
+
+# classes_to_text = {
+#     0: 'STOP',
+#     1: 'PALM',
+#     2: 'FIST_UP',
+#     3: 'FIST',
+#     4: 'RIGHT',
+#     5: 'LEFT',
+#     6: 'TIMEOUT',
+# }
 
 
 def normalize_list(l):

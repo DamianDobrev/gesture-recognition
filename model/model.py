@@ -185,8 +185,8 @@ save_info('./test_result')
 # Data fetching
 # ...
 
-path = './training_scripts/captured_images/'
-all_img = data.fetch_training_images_binary(path)
+path = '../training/captured_masks/'
+all_img = data.fetch_training_images_binary(path, 700)
 X_train, X_test, Y_train, Y_test = split_data(all_img)
 
 print('len', len(all_img[0][0]))
