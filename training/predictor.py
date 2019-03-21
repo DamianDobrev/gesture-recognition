@@ -1,33 +1,21 @@
+import os
+
 import numpy as np
 
 from keras.models import load_model
 
+from config import CONFIG
 from image_processing.image_processor import process_img_for_train_or_predict
 
 model_folder_name = '2019-03-18__23-55-36'  # 100 images per class, 5 classes
-# model_folder_name = '2019-03-18__23-55-36'  # 700 images per class, 7 classes
 
-model = load_model('./__results/' + model_folder_name + '/model.hdf5')
+model = load_model(os.path.join(CONFIG['path_to_results'], model_folder_name, 'model.hdf5'))
 
-classes_to_text = {
-    0: 'STOP',
-    1: 'FIST',
-    2: 'RIGHT',
-    3: 'LEFT',
-    4: 'UPDOWN'
-}
-
-
-# classes_to_text = {
-#     0: 'STOP',
-#     1: 'PALM',
-#     2: 'FIST_UP',
-#     3: 'FIST',
-#     4: 'RIGHT',
-#     5: 'LEFT',
-#     6: 'TIMEOUT',
-# }
-
+# !!! Note.
+# This model works very well: '2019-03-18__23-55-36'.
+# However it only has 5 classes, and they are in different order.
+# If one would want to test it, the classes from CONFIG['classes'] have to be replaced with this array:
+# ['stop', 'fist', 'right', 'left', 'updown']
 
 def normalize_list(l):
     l_sum = sum(l)
@@ -46,4 +34,4 @@ def predict(img):
 
     idx = normalized.index(max(normalized))
 
-    return idx + 1, normalized, classes_to_text[idx]  # Class is from 1 to 5. No 0s.
+    return idx + 1, normalized, CONFIG['classes'][idx]  # Class is from 1 to 5. No 0s.

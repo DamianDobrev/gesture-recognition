@@ -48,10 +48,10 @@ def fetch_imgs_from_dir(data_dir, extension='png', max_count=100):
     return images
 
 
-def fetch_training_images_binary(path, count):
+def fetch_training_images(path, max_imgs_per_class):
     folders = os.listdir(path)
     classes = []
     for idx, name in enumerate(folders):
         class_num = idx
-        classes.append((fetch_imgs_from_dir(path + name + '/', 'png', count), class_num))
+        classes.append((fetch_imgs_from_dir(path + name + '/', 'png', max_imgs_per_class), class_num))
     return classes

@@ -6,5 +6,7 @@ CONFIG = {
     'path_to_results': os.path.join(package_directory, '__results'),
     'path_to_raw': os.path.join(package_directory, 'training', 'captured_images'),
     'size': 200,
-    'training_samples': 10
+    'training_samples': 10,
+    # 'classes': ['stop', 'palm', 'right', 'left', 'hover', 'updown', 'fist', 'peace', 'timeout']
+    'classes': ['stop', 'fist', 'right', 'left', 'updown']
 }

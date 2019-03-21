@@ -6,7 +6,7 @@ import imutils
 import numpy as np
 
 from config import CONFIG
-from data import fetch_training_images_binary
+from data import fetch_training_images
 from image_processing import image_processor
 
 size = CONFIG['size']
@@ -97,7 +97,7 @@ def run(img, fn):
 #     if not os.path.exists(path_to_captured_masks):
 #         os.makedirs(path_to_captured_masks)
 #
-#     imgs = fetch_training_images_binary(path_to_captured_images, 700)
+#     imgs = fetch_training_images(path_to_captured_images, 700)
 #     for i in range(0,7):
 #         img_list = imgs[i][0]
 #         class_num = imgs[i][1]

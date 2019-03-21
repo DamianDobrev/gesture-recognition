@@ -164,37 +164,8 @@ def split_data(data_label_tuples):
     return np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test)
 
 
-
 def to_np_array(list_to_transform):
     shape = list(list_to_transform[0].shape)
     shape[:0] = [len(list_to_transform)]
     return np.concatenate(list_to_transform).reshape(shape)
     # return np.concatenate(list_to_transform, axis=0)
-
-if not os.path.exists('./test_result'):
-    os.makedirs('./test_result')
-save_info('./test_result')
-
-# Data fetching
-# ...
-
-path = '../training/captured_masks/'
-all_img = data.fetch_training_images_binary(path, 700)
-X_train, X_test, Y_train, Y_test = split_data(all_img)
-
-print('len', len(all_img[0][0]))
-
-# Create model
-# ...
-model = create_model(len(all_img))
-
-print('---->>> X_train', X_train)
-print('---->>> X_train[0].shape', X_train[0].shape)
-
-
-# Train model
-# ...
-train_model(model, X_train, X_test, Y_train, Y_test)
-
-
-cv2.waitKey(0)
