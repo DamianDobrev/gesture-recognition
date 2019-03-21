@@ -10,9 +10,9 @@ size = CONFIG['size']
 
 
 def predict_action(ip, orig_frame):
-    img, img_conversions = convert_img_for_test_or_prediction(ip, orig_frame)
+    img_to_predict, img_conversions = convert_img_for_test_or_prediction(ip, orig_frame)
 
-    class_num, normalized_vals, class_name = predict(img)
+    class_num, normalized_vals, class_name = predict(img_to_predict)
 
     def get_center_hsv(img):
         img_hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
