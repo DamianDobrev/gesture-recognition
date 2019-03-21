@@ -8,12 +8,10 @@ from skimage.measure import regionprops
 bbthresh = 20
 
 
-def to_monochrome(img):
-    monochrome_img = np.array(Image.fromarray(img).convert('L'))
-    return monochrome_img
+def to_50x50_monochrome(img):
+    def to_monochrome(im):
+        return np.array(Image.fromarray(im).convert('L'))
 
-
-def process_img_for_train_or_predict(img):
     img = cv2.resize(img, (50, 50))
     img = to_monochrome(img)
     img = np.array([img])  # shape should be like (1, 50, 50)

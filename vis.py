@@ -7,6 +7,8 @@ from config import CONFIG
 size = CONFIG['size']
 window_name = 'Img with Bbox + processing.'
 
+num_canvas_lines = 8
+
 
 def append_rectangle_in_center(img, color=(255, 255, 0)):
     height, width = img.shape[:2]
@@ -16,21 +18,20 @@ def append_rectangle_in_center(img, color=(255, 255, 0)):
     return img_rect
 
 
-def visualise(params, orig, skin, binary_mask, hand, hand_binary_mask):
-    orig_mark_center = append_rectangle_in_center(orig)
+def visualise(img_conversions, texts_list):
+    orig_mark_center = append_rectangle_in_center(img_conversions['orig_bboxes'])
 
-    vals_canvas = Canvas((size, 500, 3))
-    if 'center_hsv' in params:
-        vals_canvas.draw_text(1, 'hsv: ' + str(params['center_hsv']))
-    if 'result' in params:
-        vals_canvas.draw_text(2, 'res: ' + str(params['result']))
+    top_canvas = Canvas((size, 500, 3))
+    bot_canvas = Canvas((size, 500, 3))
 
-    if 'count' in params:
-        vals_canvas.draw_text(1, 'res: ' + str(params['count']))
+    line_num = 0
 
-    empty_canvas = Canvas((size, 500, 3))
+    for idx, text in enumerate(texts_list):
+        canvas = top_canvas if line_num <= num_canvas_lines else bot_canvas
+        canvas.draw_text(idx, text)
+        line_num += 1
 
-    stack1 = np.hstack([orig_mark_center, skin, vals_canvas.print()])
-    stack2 = np.hstack([hand, hand_binary_mask, empty_canvas.print()])
+    stack1 = np.hstack([orig_mark_center, img_conversions['skin'], top_canvas.print()])
+    stack2 = np.hstack([img_conversions['hand'], img_conversions['hand_binary_mask'], bot_canvas.print()])
 
     cv2.imshow(window_name, np.vstack([stack1, stack2]))
