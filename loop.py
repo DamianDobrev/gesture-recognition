@@ -9,6 +9,7 @@ from config import CONFIG
 from data import fetch_training_images
 from image_converter import convert_image
 from image_processing import image_processor
+from image_processing.canvas import Canvas
 
 size = CONFIG['size']
 cap = cv2.VideoCapture(0)
@@ -22,7 +23,28 @@ path_to_captured_masks = './training/captured_masks/'
 ip = image_processor.ImageProcessor(size, [104, 25, 34], [179, 255, 180])  # Uni.
 
 
-def loop(fn, img_processor=ip):
+def calibrate():
+    # TODO fill in calibration function
+    return ip
+
+
+def prompt_calibration():
+    canvas = Canvas((100, 800, 3))
+    text = 'To calibrate HSV values press "c", to use default calibration press any other key.'
+    canvas.draw_text(2, text)
+    cv2.imshow('calibration', canvas.print())
+
+    if cv2.waitKey(0) & 0xFF == ord('c'):
+        print('started calibration')
+        return calibrate()
+    else:
+        print('default calibration')
+        return ip
+
+
+def loop(fn):
+    img_processor = prompt_calibration()
+
     while True:
         ret, frame = cap.read()
         frame = imutils.resize(frame, height=size)
