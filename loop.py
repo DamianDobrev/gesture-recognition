@@ -17,19 +17,11 @@ path_to_captured_images = './training/captured_images/'
 path_to_captured_masks = './training/captured_masks/'
 
 # ip = image_processor.ImageProcessor(size, [102, 40, 34], [179, 255, 255])  # Works well at home in daylight.
-ip = image_processor.ImageProcessor(size, [95, 90, 150], [179, 255, 255])  # Works well at home in daylight.
-# ip = image_processor.ImageProcessor(size, [104, 25, 34], [179, 255, 180])
+# ip = image_processor.ImageProcessor(size, [95, 90, 150], [179, 255, 255])
+ip = image_processor.ImageProcessor(size, [104, 25, 34], [179, 255, 180])  # Uni.
 
 
 def loop(fn):
-    # path_output_dir = path_to_captured_images + str(class_number) + '/'
-    # path_masks_output_dir = path_to_captured_masks + str(class_number) + '/'
-
-    # if not os.path.exists(path_output_dir):
-    #     os.makedirs(path_output_dir)
-    # if not os.path.exists(path_masks_output_dir):
-    #     os.makedirs(path_masks_output_dir)
-
     while True:
         ret, frame = cap.read()
         frame = imutils.resize(frame, height=size)
@@ -54,6 +46,13 @@ def extract_bounding_boxes_by_skin_threshold(image):
     return skin, mask_binary, bbox, square_bbox
 
 
+def get_center_hsv(img):
+    img_hsv = cv2.cvtColor(img, cv2.COLOR_RGB2HSV)
+    img_hsv = cv2.GaussianBlur(img_hsv, (3, 3), 0)
+    center_px_hsv = img_hsv[int(size / 2), int(size / 2)]
+    return center_px_hsv
+
+
 def run(img, fn):
     """
     Processes the frame and calls the `fn` with processed images as args.
@@ -70,6 +69,19 @@ def run(img, fn):
     # Crop frame and binary mask to the correct bounding box.
     hand = ip.crop_image_by_square_bbox(img, sq_bbox, size)
     hand_binary_mask = cv2.cvtColor(ip.crop_image_by_square_bbox(binary_mask, sq_bbox, size), cv2.COLOR_GRAY2RGB)
+
+    params = {
+        'orig': img,
+        'orig_bboxes': frame_with_rect_sq_bboxes,
+        'skin': skin,
+        'hand': hand,
+        'binary_mask': binary_mask,
+        'hand_binary_mask': hand_binary_mask,
+        'sq_bbox': sq_bbox,
+        'center_hsv': get_center_hsv(img),
+    }
+
+    # TODO provide params in the fn
 
     # Do whatever with the preprocessed images.
     fn(img,

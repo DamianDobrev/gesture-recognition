@@ -3,12 +3,19 @@ import os
 import numpy as np
 
 from image_processing.image_processor import process_img_for_train_or_predict
-# from loop import extract_bounding_boxes_by_skin_threshold
-
-prefix_path = '_skip/'
 
 
-def fetch_imgs_from_dir(data_dir, extension='png', num_entries=400):
+def visualise_img_and_pause(img):
+    img_np = np.array(img)
+    print('Image shape as it is:', img_np.shape)
+    img_np = np.moveaxis(img_np, -1, 0)
+    img_np = np.moveaxis(img_np, -1, 0)
+    print('Image shape to visualise:', img_np.shape)
+    cv2.imshow('Image', img_np)
+    cv2.waitKey(0)
+
+
+def fetch_imgs_from_dir(data_dir, extension='png', max_count=100):
     """
     Returns np.array of monochrome images.
     :param data_dir: String showing the data dir.
@@ -30,24 +37,18 @@ def fetch_imgs_from_dir(data_dir, extension='png', num_entries=400):
     file_names = get_file_names_from_dir(data_dir, extension)
 
     for idx, file_name in enumerate(file_names):
-        if idx >= num_entries:
+        if idx >= max_count:
             break
         img = cv2.imread(data_dir + file_name)
         img = process_img_for_train_or_predict(img)
         images.append(img)
 
-    # Uncomment below to visualise the first image and pause.
-    # shit = np.array(images[0])
-    # print('dasdsa', shit.shape)
-    # shit = np.moveaxis(shit, -1, 0)
-    # shit = np.moveaxis(shit, -1, 0)
-    # print('dasdsa', shit.shape)
-    # cv2.imshow('shittty', shit)
-    # cv2.waitKey(0)
+    # Uncomment this to test how the image looks like.
+    visualise_img_and_pause(images[0])
     return images
 
 
-def fetch_training_images_binary(path=prefix_path, count=100):
+def fetch_training_images_binary(path, count):
     folders = os.listdir(path)
     classes = []
     for idx, name in enumerate(folders):

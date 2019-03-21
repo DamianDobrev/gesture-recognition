@@ -17,29 +17,20 @@ import data
 
 import os
 
-# from tensorflow.contrib.learn.python.learn.estimators._sklearn import train_test_split
-# from tensorflow.python.keras.utils import np_utils
 
 K.set_image_dim_ordering('th')
 
 img_rows, img_cols = 50, 50
 
-img_channels = 1
-
 results_path = config.CONFIG['path_to_results']
 
-# Batch_size to train
-batch_size = 16 # 32
+batch_size = 16
+num_epochs = 15
 
-# Number of epochs to train (change it accordingly)
-nb_epoch = 15  #25
-
-# Total number of convolutional filters to use
-nb_filters = 50
-# Max pooling
-nb_pool = 2
-# Size of convolution kernel
-nb_conv = 3
+# Layers options.
+num_conv_filters = 50
+conv_kernel_size = 3
+pool_size = 2
 
 
 def visualizeHis(hist):
@@ -49,7 +40,7 @@ def visualizeHis(hist):
     val_loss=hist.history['val_loss']
     train_acc=hist.history['acc']
     val_acc=hist.history['val_acc']
-    xc=range(nb_epoch)
+    xc=range(num_epochs)
 
     plt.figure(1,figsize=(7,5))
     plt.plot(xc,train_loss)
@@ -71,6 +62,7 @@ def visualizeHis(hist):
 
     plt.show()
 
+
 def save_info(file_dir = '.'):
     # TODO (complete)
     f = open(file_dir + '/info.txt', 'w+')
@@ -78,19 +70,20 @@ def save_info(file_dir = '.'):
         f.write("This is line %d\r\n" % (i + 1))
     f.close()
 
+
 def create_model(num_classes):
     global get_output
     model = Sequential()
-    model.add(Conv2D(nb_filters, (nb_conv, nb_conv),
+    model.add(Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size),
                      padding='valid',
                      input_shape=(1, img_rows, img_cols)))
 
     convout1 = Activation('relu')
     model.add(convout1)
-    model.add(Conv2D(nb_filters, (nb_conv, nb_conv)))
+    model.add(Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size)))
     convout2 = Activation('relu')
     model.add(convout2)
-    model.add(MaxPooling2D(pool_size=(nb_pool, nb_pool)))
+    model.add(MaxPooling2D(pool_size=(pool_size, pool_size)))
     model.add(Dropout(0.5))
 
     model.add(Flatten())
@@ -130,7 +123,7 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     print('len', len(X_test))
 
     print('start training...')
-    hist = model.fit(X_train, np.array(Y_train), batch_size=batch_size, epochs=nb_epoch, verbose=1, validation_split=0.2)
+    hist = model.fit(X_train, np.array(Y_train), batch_size=batch_size, epochs=num_epochs, verbose=1, validation_split=0.2)
     print('finished training...')
 
     eval = model.evaluate(X_test, np.array(Y_test))

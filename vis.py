@@ -20,12 +20,12 @@ def visualise(params, orig, skin, binary_mask, hand, hand_binary_mask):
     orig_mark_center = append_rectangle_in_center(orig)
 
     vals_canvas = Canvas((size, 500, 3))
-    # if hasattr(params, 'center_hsv'):
-    vals_canvas.draw_text(1, 'hsv: ' + str(params['center_hsv']))
-    # if hasattr(params, 'result'):
-    vals_canvas.draw_text(2, 'res: ' + str(params['result']))
+    if 'center_hsv' in params:
+        vals_canvas.draw_text(1, 'hsv: ' + str(params['center_hsv']))
+    if 'result' in params:
+        vals_canvas.draw_text(2, 'res: ' + str(params['result']))
 
-    if hasattr(params, 'count'):
+    if 'count' in params:
         vals_canvas.draw_text(1, 'res: ' + str(params['count']))
 
     empty_canvas = Canvas((size, 500, 3))

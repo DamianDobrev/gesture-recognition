@@ -9,11 +9,9 @@ from vis import visualise
 
 size = CONFIG['size']
 
-CLASS = 7
+CLASS = 8
 
-path_to_captured_images = './training/captured_images/'
-
-path_output_dir = path_to_captured_images + str(CLASS) + '/'
+path_output_dir = os.path.join(CONFIG['path_to_raw'], str(CLASS))
 
 last_time = datetime.now()
 
