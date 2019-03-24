@@ -1,1 +1,2 @@
+100 img per class, 5 classes.
 Using masked training data, so provide masked 50x50 input.
