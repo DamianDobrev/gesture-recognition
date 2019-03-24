@@ -3,8 +3,10 @@ from datetime import datetime
 
 import cv2
 
+from calibrator import prompt_calibration
 from config import CONFIG
 from image_converter import convert_img_for_test_or_prediction
+from image_processing import image_processor
 from loop import loop
 from vis import visualise
 
@@ -61,7 +63,10 @@ print('Press "s" to start capturing')
 if not os.path.exists(path_output_dir):
     os.makedirs(path_output_dir)
 
-# Loop.
-loop(collect_action)
+# Calibrate.
+l_range, u_range = prompt_calibration()
+ip = image_processor.ImageProcessor(size, l_range, u_range)
 
+# Start data collection mode.
+loop(collect_action, ip)
 cv2.waitKey(0)

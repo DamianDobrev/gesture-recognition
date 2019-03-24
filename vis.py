@@ -35,3 +35,17 @@ def visualise(img_conversions, texts_list):
     stack2 = np.hstack([img_conversions['hand'], img_conversions['hand_binary_mask'], bot_canvas.print()])
 
     cv2.imshow(window_name, np.vstack([stack1, stack2]))
+
+
+def visualise_orig(orig_mark_center, texts_list):
+    top_canvas = Canvas((400, orig_mark_center.shape[1], 3))
+
+    line_num = 0
+
+    for idx, text in enumerate(texts_list):
+        top_canvas.draw_text(idx, text)
+        line_num += 1
+
+    stack1 = np.vstack([orig_mark_center, top_canvas.print()])
+
+    cv2.imshow(window_name, stack1)

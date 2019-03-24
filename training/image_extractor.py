@@ -55,7 +55,7 @@ def loop(class_number, milliseconds=200):
 
         # Also crop the binary mask.
         cropped_binary_mask = ip.crop_image_by_square_bbox(mask_binary, square_bbox, size)
-        cropped_binary_mask = cv2.cvtColor(cropped_binary_mask, cv2.COLOR_GRAY2RGB)
+        cropped_binary_mask = cv2.cvtColor(cropped_binary_mask, cv2.COLOR_GRAY2BGR)
 
         prediction_value = np.zeros((200, 200, 3), np.uint8)
         # Manage input.

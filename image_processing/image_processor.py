@@ -24,18 +24,34 @@ class ImageProcessor:
         self.lower = np.array(lower, dtype = "uint8")
         self.upper = np.array(upper, dtype = "uint8")
 
-    def crop(self, img):
-        frame = img[0:self.size, 0:self.size]
+    def crop(self, img, size=None):
+        if size is None:
+            size = self.size
+        h, w = img.shape[:2]
+        h_sp = int((h - size) / 2)
+        w_sp = int((w - size) / 2)
+        frame = img[h_sp:h_sp+size, w_sp:w_sp+size]
         return frame
 
-    def extract_skin(self, image):
-        frame_hsv = cv2.cvtColor(image, cv2.COLOR_RGB2HSV)
-        frame_hsv = cv2.GaussianBlur(frame_hsv, (3, 3), 0)
-        # frame_hsv = cv2.medianBlur(frame_hsv, 3)
-        # frame_hsv = cv2.bilateralFilter(frame_hsv, 3, 35, 35)
-        # frame_hsv = cv2.addWeighted(frame_hsv, 2, frame_hsv, -1, 0)
+    def increase_saturation(self, img):
+        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        img_hsv[..., 1] = img_hsv[..., 1] * 1.4
+        return cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
 
-        center_px_hsv = frame_hsv[int(self.size/2), int(self.size/2)]
+    def normalize_hist(self, img):
+        img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
+        # equalize the histogram of the Y channel
+        img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
+        # convert the YUV image back to BGR format
+        return cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
+
+    def extract_skin(self, img):
+        image = img.copy()
+        frame_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+        frame_hsv = cv2.GaussianBlur(frame_hsv, (3, 3), 1)
+        # frame_hsv = cv2.medianBlur(frame_hsv, 3)
+        frame_hsv = cv2.bilateralFilter(frame_hsv, 3, 45, 45)
+        # frame_hsv = cv2.addWeighted(frame_hsv, 2, frame_hsv, -1, 0)
 
         skin_mask = cv2.inRange(frame_hsv, self.lower, self.upper)
 
@@ -47,20 +63,17 @@ class ImageProcessor:
         return cv2.bitwise_and(image, image, mask=skin_mask)
 
     def hsv_to_binary(self, image):
-        binary_img = cv2.cvtColor(image, cv2.COLOR_HSV2RGB)
-        binary_img = cv2.cvtColor(binary_img, cv2.COLOR_RGB2GRAY)
-        height, width = binary_img.shape[:2]
-        for y in range(0, height):
-            for x in range(0, width):
-                # threshold the pixel
-                binary_img[y, x] = 255 if binary_img[y, x] >= 10 else 0
+        binary_mask = cv2.inRange(image, np.array([5, 5, 5], dtype = "uint8"), np.array([179, 255, 255], dtype = "uint8"))
+        binary_mask = cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR)
+        img = cv2.cvtColor(image.copy(), cv2.COLOR_HSV2BGR)
+        binary_img = img[:,:,0] & binary_mask[:,:,0]
 
         def smooth_binary(img_in):
             img = img_in.copy()
             # Enable for daylight!
-            # kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-            # img = cv2.erode(img, kernel, iterations=3)
-            # img = cv2.dilate(img, kernel, iterations=2)
+            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
+            img = cv2.erode(img, kernel, iterations=3)
+            img = cv2.dilate(img, kernel, iterations=2)
             return img
 
         def fill_holes(img_in):
