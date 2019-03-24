@@ -7,7 +7,6 @@ import cv2
 from keras import backend as K
 from keras import Sequential
 from keras.layers import Conv2D, Activation, MaxPooling2D, Dropout, Flatten, Dense
-# from sklearn.utils import shuffle
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import numpy as np
@@ -25,13 +24,8 @@ img_rows, img_cols = 50, 50
 
 results_path = config.CONFIG['path_to_results']
 
-batch_size = 16
-num_epochs = 15
-
-# Layers options.
-num_conv_filters = 50
-conv_kernel_size = 3
-pool_size = 2
+batch_size = 32
+num_epochs = 20
 
 
 def create_path_if_does_not_exist(path):
@@ -75,18 +69,22 @@ def save_data_info(file_dir, x_train, x_test, y_train, y_test):
     data_path = os.path.join(file_dir, 'data')
     create_path_if_does_not_exist(data_path)
 
-
     f = open(os.path.join(file_dir, 'data', 'data_info.txt'), 'w+')
     f.write('len(x_train): ' + str(len(x_train)) + '\n')
     f.write('len(x_test): ' + str(len(x_test)) + '\n')
     f.close()
-    # TODO save also sample raw image and sample image as it is fed to the NN
 
     for idx, img in enumerate(x_train):
         img_path = os.path.join(data_path, str(config.CONFIG['classes'][y_train[idx]]))
         create_path_if_does_not_exist(img_path)
         conv = np.moveaxis(img, 0, -1)
         cv2.imwrite(os.path.join(img_path, 'img-' + str(random.randrange(999999)) + '.png'), conv)
+
+
+def save_additional_info_file(file_dir):
+    f = open(os.path.join(file_dir, 'notes.txt'), 'w+')
+    f.write('# Add notes here about this training/model...' + '\n')
+    f.close()
 
 
 def save_info(file_dir, model, eval):
@@ -108,6 +106,11 @@ def save_info(file_dir, model, eval):
 
 
 def create_model(num_classes):
+    # Layers options.
+    num_conv_filters = 50
+    conv_kernel_size = 3
+    pool_size = 2
+
     global get_output
     model = Sequential()
     l_input = Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size),
@@ -156,7 +159,8 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
 
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d__%H-%M-%S')
-    os.makedirs(os.path.join(results_path, st))
+    create_path_if_does_not_exist(os.path.join(results_path, st))
+    save_additional_info_file(os.path.join(results_path, st))
 
     print('started training...')
     csv_logger = CSVLogger(os.path.join(results_path, st, 'model_fit_log.csv'), append=True, separator=';')
