@@ -16,7 +16,7 @@ def process_tuple(tup):
 def run_training():
     # Data fetching
     # ...
-    all_img = data.fetch_training_images(CONFIG['path_to_raw'], CONFIG['training_samples'])
+    all_img = data.fetch_training_images(CONFIG['path_to_raw'], CONFIG['num_training_samples'])
     all_img = list(map(process_tuple, all_img))
     x_train, x_test, y_train, y_test = split_data(all_img)
 

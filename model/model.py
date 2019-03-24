@@ -1,5 +1,6 @@
 import datetime
 import time
+import random
 
 import cv2
 
@@ -11,9 +12,9 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import numpy as np
 from matplotlib import pyplot as plt
+from keras.callbacks import CSVLogger
 
 import config
-import data
 
 import os
 
@@ -33,7 +34,12 @@ conv_kernel_size = 3
 pool_size = 2
 
 
-def visualizeHis(hist):
+def create_path_if_does_not_exist(path):
+    if not os.path.exists(path):
+        os.makedirs(path)
+
+
+def save_hist(hist, path_to_save):
     # visualizing losses and accuracy
 
     train_loss=hist.history['loss']
@@ -42,7 +48,7 @@ def visualizeHis(hist):
     val_acc=hist.history['val_acc']
     xc=range(num_epochs)
 
-    plt.figure(1,figsize=(7,5))
+    fig_loss = plt.figure(1,figsize=(7,5))
     plt.plot(xc,train_loss)
     plt.plot(xc,val_loss)
     plt.xlabel('num of Epochs')
@@ -51,7 +57,7 @@ def visualizeHis(hist):
     plt.grid(True)
     plt.legend(['train','val'])
 
-    plt.figure(2,figsize=(7,5))
+    fig_acc = plt.figure(2,figsize=(7,5))
     plt.plot(xc,train_acc)
     plt.plot(xc,val_acc)
     plt.xlabel('num of Epochs')
@@ -61,44 +67,78 @@ def visualizeHis(hist):
     plt.legend(['train','val'],loc=4)
 
     plt.show()
+    fig_acc.savefig(os.path.join(path_to_save, 'accuracy.png'))
+    fig_loss.savefig(os.path.join(path_to_save, 'loss.png'))
 
 
-def save_info(file_dir = '.'):
-    # TODO (complete)
-    f = open(file_dir + '/info.txt', 'w+')
-    for i in range(10):
-        f.write("This is line %d\r\n" % (i + 1))
+def save_data_info(file_dir, x_train, x_test, y_train, y_test):
+    data_path = os.path.join(file_dir, 'data')
+    create_path_if_does_not_exist(data_path)
+
+
+    f = open(os.path.join(file_dir, 'data', 'data_info.txt'), 'w+')
+    f.write('len(x_train): ' + str(len(x_train)) + '\n')
+    f.write('len(x_test): ' + str(len(x_test)) + '\n')
+    f.close()
+    # TODO save also sample raw image and sample image as it is fed to the NN
+
+    for idx, img in enumerate(x_train):
+        img_path = os.path.join(data_path, str(config.CONFIG['classes'][y_train[idx]]))
+        create_path_if_does_not_exist(img_path)
+        conv = np.moveaxis(img, 0, -1)
+        cv2.imwrite(os.path.join(img_path, 'img-' + str(random.randrange(999999)) + '.png'), conv)
+
+
+def save_info(file_dir, model, eval):
+    f = open(os.path.join(file_dir, 'eval.txt'), 'w+')
+    f.write('eval_loss=' + str(eval[0]) + '\n')
+    f.write('eval_acc =' + str(eval[1]) + '\n\n')
+    f.close()
+
+    f = open(os.path.join(file_dir, 'model_summary.txt'), 'w+')
+    f.write(str(model.summary(print_fn=lambda x: f.write(x + '\n'))))
+    f.close()
+
+    f = open(os.path.join(file_dir, 'training_summary.txt'), 'w+')
+    f.write('img_w,img_h=' + str(img_cols) + ',' + str(img_rows) + '\n')
+    f.write('batch_size=' + str(batch_size) + '\n')
+    f.write('num_epochs=' + str(num_epochs) + '\n')
+    f.write('classes=' + str(config.CONFIG['classes']))
     f.close()
 
 
 def create_model(num_classes):
     global get_output
     model = Sequential()
-    model.add(Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size),
+    l_input = Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size),
                      padding='valid',
-                     input_shape=(1, img_rows, img_cols)))
+                     input_shape=(1, img_rows, img_cols))
+    model.add(l_input)
 
-    convout1 = Activation('relu')
-    model.add(convout1)
-    model.add(Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size)))
-    convout2 = Activation('relu')
-    model.add(convout2)
-    model.add(MaxPooling2D(pool_size=(pool_size, pool_size)))
-    model.add(Dropout(0.5))
+    layers = [
+        Activation('relu'),
+        Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size)),
+        Activation('relu'),
+        MaxPooling2D(pool_size=(pool_size, pool_size)),
+        Dropout(0.5),
 
-    model.add(Flatten())
-    model.add(Dense(128))
-    model.add(Activation('relu'))
-    model.add(Dropout(0.5))
-    model.add(Dense(num_classes))
-    model.add(Activation('softmax'))
+        Flatten(),
+        Dense(128),
+        Activation('relu'),
+        Dropout(0.5),
+        Dense(num_classes),
+        Activation('softmax')
+    ]
+
+    for layer in layers:
+        model.add(layer)
 
     # Save model.
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adadelta', metrics=['accuracy'])
 
     # Model summary
     model.summary()
-    # Model conig details
+    # Model config details
     model.get_config()
 
     layer = model.layers[11]
@@ -108,44 +148,34 @@ def create_model(num_classes):
 
 
 def train_model(model, X_train, X_test, Y_train, Y_test):
-    print('Started training...')
-
-    print('~~~X_train~~~')
-    print('ndim', X_train.ndim)
-    print('shape', X_train.shape)
-    print('size', X_train.size)
-    print('len', len(X_train))
-
-    print('~~~X_test~~~')
-    print('ndim', X_test.ndim)
-    print('shape', X_test.shape)
-    print('size', X_test.size)
-    print('len', len(X_test))
-
-    print('start training...')
-    hist = model.fit(X_train, np.array(Y_train), batch_size=batch_size, epochs=num_epochs, verbose=1, validation_split=0.2)
-    print('finished training...')
-
-    eval = model.evaluate(X_test, np.array(Y_test))
-
-    print('eval:', eval)
-
-    visualizeHis(hist)
+    Y_train = np.array(Y_train)
+    Y_test = np.array(Y_test)
 
     # Save the weights and model under _results/current-timestamp
-    if not os.path.exists(results_path):
-        os.makedirs(results_path)
+    create_path_if_does_not_exist(results_path)
 
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d__%H-%M-%S')
-    os.makedirs(results_path + '/' + st)
+    os.makedirs(os.path.join(results_path, st))
 
-    # Save weights
-    model.save_weights(results_path + '/' + st + "/weight.hdf5", overwrite=True)
-    # Save model
-    model.save(results_path + '/' + st + "/model.hdf5")
+    print('started training...')
+    csv_logger = CSVLogger(os.path.join(results_path, st, 'model_fit_log.csv'), append=True, separator=';')
+    hist = model.fit(X_train, Y_train, batch_size=batch_size,
+                     epochs=num_epochs, verbose=1, validation_split=0.2,
+                     callbacks=[csv_logger])
+    print('finished training...')
 
-    save_info(results_path + '/' + st)
+    eval = model.evaluate(X_test, Y_test)
+    print('eval:', eval)
+
+    # Save weights and model.
+    model.save_weights(os.path.join(results_path, st, "weight.hdf5"), overwrite=True)
+    model.save(os.path.join(results_path, st, "model.hdf5"), overwrite=True)
+
+    # Save model and training info.
+    save_hist(hist, os.path.join(results_path, st))
+    save_info(os.path.join(results_path, st), model, eval)
+    save_data_info(os.path.join(results_path, st), X_train, X_test, Y_train, Y_test)
 
 
 def split_data(data_label_tuples):

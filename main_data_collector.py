@@ -12,7 +12,7 @@ from vis import visualise
 
 size = CONFIG['size']
 
-CLASS = 8
+CLASS = 10
 
 path_output_dir = os.path.join(CONFIG['path_to_raw'], str(CLASS))
 

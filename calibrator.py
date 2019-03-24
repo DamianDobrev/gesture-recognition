@@ -141,8 +141,16 @@ def prompt_calibration():
         # Best config for home lamps:
         # - lower: [3, 37, 64]
         # - upper: [177, 168, 154]
-        l_range_def = [3, 37, 64]
-        u_range_def = [177, 168, 154]
+
+        # For palm is good:
+        # - lower:  [4, 39, 23]
+        # - upper: [177, 214, 118]
+
+        # For hover is good:
+        #  - lower:  [3, 61, 45]
+        #  - upper:  [177, 198, 134]
+        l_range_def = [4, 39, 23]
+        u_range_def = [177, 214, 118]
 
         print('default calibration selected: ')
         print('  - lower: ', str(l_range_def))
