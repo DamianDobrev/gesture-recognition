@@ -2,8 +2,6 @@ import cv2
 import os
 import numpy as np
 
-from image_processing.image_processor import to_50x50_monochrome
-
 
 def visualise_img_and_pause(img):
     img_np = np.array(img)
@@ -40,7 +38,6 @@ def fetch_imgs_from_dir(data_dir, extension='png', max_count=100):
         if idx >= max_count:
             break
         img = cv2.imread(os.path.join(data_dir,file_name))
-        # img = to_50x50_monochrome(img)
         images.append(img)
 
     # Uncomment this to test how the image looks like.
@@ -52,7 +49,6 @@ def fetch_training_images(path, max_imgs_per_class):
     folders = os.listdir(path)
     classes = []
     for idx, name in enumerate(folders):
-        class_num = idx
         images = fetch_imgs_from_dir(os.path.join(path, name), 'png', max_imgs_per_class)
-        classes.append((images, class_num))
+        classes.append((images, int(name) - 1))
     return classes

@@ -11,7 +11,7 @@ from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import numpy as np
 from matplotlib import pyplot as plt
-from keras.callbacks import CSVLogger
+from keras.callbacks import CSVLogger, EarlyStopping
 
 import config
 
@@ -24,8 +24,8 @@ img_rows, img_cols = 50, 50
 
 results_path = config.CONFIG['path_to_results']
 
-batch_size = 32
-num_epochs = 20
+batch_size = 128
+num_epochs = 10
 
 
 def create_path_if_does_not_exist(path):
@@ -36,15 +36,15 @@ def create_path_if_does_not_exist(path):
 def save_hist(hist, path_to_save):
     # visualizing losses and accuracy
 
-    train_loss=hist.history['loss']
-    val_loss=hist.history['val_loss']
-    train_acc=hist.history['acc']
-    val_acc=hist.history['val_acc']
-    xc=range(num_epochs)
+    train_loss = hist.history['loss']
+    val_loss = hist.history['val_loss']
+    train_acc = hist.history['acc']
+    val_acc = hist.history['val_acc']
+    xc = range(len(train_loss))
 
     fig_loss = plt.figure(1,figsize=(7,5))
-    plt.plot(xc,train_loss)
-    plt.plot(xc,val_loss)
+    plt.plot(xc, train_loss)
+    plt.plot(xc, val_loss)
     plt.xlabel('num of Epochs')
     plt.ylabel('loss')
     plt.title('train_loss vs val_loss')
@@ -52,8 +52,8 @@ def save_hist(hist, path_to_save):
     plt.legend(['train','val'])
 
     fig_acc = plt.figure(2,figsize=(7,5))
-    plt.plot(xc,train_acc)
-    plt.plot(xc,val_acc)
+    plt.plot(xc, train_acc)
+    plt.plot(xc, val_acc)
     plt.xlabel('num of Epochs')
     plt.ylabel('accuracy')
     plt.title('train_acc vs val_acc')
@@ -164,9 +164,12 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
 
     print('started training...')
     csv_logger = CSVLogger(os.path.join(results_path, st, 'model_fit_log.csv'), append=True, separator=';')
+    # Add early stopping because the model may reach super-high accuracy in ~5 epochs
+    # but if we continue with training it will overfit super hard.
+    es = EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=6)
     hist = model.fit(X_train, Y_train, batch_size=batch_size,
                      epochs=num_epochs, verbose=1, validation_split=0.2,
-                     callbacks=[csv_logger])
+                     callbacks=[csv_logger, es])
     print('finished training...')
 
     eval = model.evaluate(X_test, Y_test)
@@ -186,15 +189,24 @@ def split_data(data_label_tuples):
     all_data = []
     all_labels = []
 
-    for tuple in data_label_tuples:
-        data = tuple[0]
-        label = tuple[1]
+    for tup in data_label_tuples:
+        data = tup[0]
+        label = tup[1]
         labels = np.full(len(data), label)
         data, Label = shuffle(data, labels, random_state=2)
         all_data.extend(data)
         all_labels.extend(Label)
 
-    x_train, x_test, y_train, y_test = train_test_split(all_data, all_labels, test_size=0.2, random_state=4)
+    all_data, all_labels = shuffle(all_data, all_labels, random_state=2)
+    x_train, x_test, y_train, y_test = train_test_split(all_data, all_labels, test_size=0.05, random_state=4)
+
+    # print('x_train', x_train)
+    # print('x_test', x_test)
+    # print('y_train', y_train)
+    # print('y_test', y_test)
+    # print('all_data', all_data)
+    # print('all_labe', all_labels)
+
     return np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test)
 
 
@@ -203,3 +215,9 @@ def to_np_array(list_to_transform):
     shape[:0] = [len(list_to_transform)]
     return np.concatenate(list_to_transform).reshape(shape)
     # return np.concatenate(list_to_transform, axis=0)
+
+#
+# inp1 = ([1,2,3,4], 'a')
+# inp2 = ([5,6,7,8], 'b')
+# inp3 = ([9,10,11,12], 'c')
+# split_data([inp1,inp2,inp3])

@@ -5,9 +5,10 @@ import numpy as np
 from keras.models import load_model
 
 from config import CONFIG
-from image_processing.image_processor import to_50x50_monochrome
 
-model_folder_name = '2019-03-18__23-55-36'  # 100 images per class, 5 classes
+# model_folder_name = '2019-03-18__23-55-36'  # 100 images per class, 5 classes
+# model_folder_name = '2019-03-24__22-48-54'  # 680 images per class, 9 classes
+model_folder_name = '2019-03-25__01-16-58'  # 680 images per class, 9 classes
 
 model = load_model(os.path.join(CONFIG['path_to_results'], model_folder_name, 'model.hdf5'))
 

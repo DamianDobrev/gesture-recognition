@@ -1,4 +1,5 @@
 import cv2
+import numpy as np
 
 from config import CONFIG
 from image_processing.image_processor import to_50x50_monochrome
@@ -52,6 +53,9 @@ def convert_image(ip, img):
 
 def convert_img_for_test_or_prediction(ip, img):
     params = convert_image(ip, img)
-    new_img = params['hand_binary_mask']
+    new_img = params['hand']
+    # new_img = params['hand_binary_mask']
     new_img = to_50x50_monochrome(new_img)
+    # cv2.imshow('to_pred', np.moveaxis(new_img, 0, -1))
+    # cv2.waitKey(1)
     return new_img, params
