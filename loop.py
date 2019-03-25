@@ -1,55 +1,22 @@
-import os
-from datetime import datetime
-
 import cv2
 import imutils
-import numpy as np
 
 from config import CONFIG
-from data import fetch_training_images
-from image_converter import convert_image
-from image_processing import image_processor
-from image_processing.canvas import Canvas
 
 size = CONFIG['size']
-cap = cv2.VideoCapture(0)
-last_time = datetime.now()
 
 path_to_captured_images = './training/captured_images/'
 path_to_captured_masks = './training/captured_masks/'
 
-# ip = image_processor.ImageProcessor(size, [102, 40, 34], [179, 255, 255])  # Works well at home in daylight.
-# ip = image_processor.ImageProcessor(size, [95, 90, 150], [179, 255, 255])
-ip = image_processor.ImageProcessor(size, [104, 25, 34], [179, 255, 180])  # Uni.
 
-
-def calibrate():
-    # TODO fill in calibration function
-    return ip
-
-
-def prompt_calibration():
-    canvas = Canvas((100, 800, 3))
-    text = 'To calibrate HSV values press "c", to use default calibration press any other key.'
-    canvas.draw_text(2, text)
-    cv2.imshow('calibration', canvas.print())
-
-    if cv2.waitKey(0) & 0xFF == ord('c'):
-        print('started calibration')
-        return calibrate()
-    else:
-        print('default calibration')
-        return ip
-
-
-def loop(fn):
-    img_processor = prompt_calibration()
+def loop(fn, ip):
+    cap = cv2.VideoCapture(0)
 
     while True:
         ret, frame = cap.read()
         frame = imutils.resize(frame, height=size)
-        frame = ip.crop(frame)
-        should_break = fn(img_processor, frame)
+        frame = ip.crop(frame, size)
+        should_break = fn(ip, frame)
         if should_break:
             break
 

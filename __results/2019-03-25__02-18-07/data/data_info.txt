@@ -1,0 +1,2 @@
+len(x_train): 5814
+len(x_test): 306

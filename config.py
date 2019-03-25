@@ -4,9 +4,13 @@ package_directory = os.path.dirname(os.path.abspath(__file__))
 
 CONFIG = {
     'path_to_results': os.path.join(package_directory, '__results'),
+    'path_to_hsv_ranges_csv': os.path.join(package_directory, 'training', 'hsv_ranges.csv'),
     'path_to_raw': os.path.join(package_directory, 'training', 'captured_images'),
     'size': 200,
-    'training_samples': 10,
-    # 'classes': ['stop', 'palm', 'right', 'left', 'hover', 'updown', 'fist', 'peace', 'timeout']
-    'classes': ['stop', 'fist', 'right', 'left', 'updown']
+    'predictor_model_dir': '2019-03-25__02-18-07',
+    'num_training_samples': 680,
+    # The certainty percentage for a gestures in order for it
+    # to be considered predicted successfully.
+    'predicted_val_threshold': 95.00,
+    'classes': ['stop', 'palm', 'right', 'left', 'hover', 'updown', 'fist', 'peace', 'rock']
 }
