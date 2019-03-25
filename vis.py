@@ -4,7 +4,7 @@ import numpy as np
 from image_processing.canvas import Canvas
 from config import CONFIG
 
-size = CONFIG['size']
+# size = CONFIG['size']
 window_name = 'Img with Bbox + processing.'
 
 num_canvas_lines = 8
@@ -21,6 +21,7 @@ def append_rectangle_in_center(img, color=(255, 255, 0)):
 def visualise(img_conversions, texts_list):
     orig_mark_center = append_rectangle_in_center(img_conversions['orig_bboxes'])
 
+    size = img_conversions['orig'].shape[0]
     top_canvas = Canvas((size, 500, 3))
     bot_canvas = Canvas((size, 500, 3))
 
@@ -32,7 +33,7 @@ def visualise(img_conversions, texts_list):
         line_num += 1
 
     stack1 = np.hstack([orig_mark_center, img_conversions['skin'], top_canvas.print()])
-    stack2 = np.hstack([img_conversions['hand'], img_conversions['hand_binary_mask'], bot_canvas.print()])
+    stack2 = np.hstack([img_conversions['hand_binary_mask'], img_conversions['skin_monochrome'], bot_canvas.print()])
 
     cv2.imshow(window_name, np.vstack([stack1, stack2]))
 
@@ -47,7 +48,7 @@ def visualise_prediction(vals, classes):
 
     for idx, val in enumerate(vals):
         x = spacing + bar_width * idx + spacing * idx
-        color = (0, 50, 255) if val > 98.00 else (0, 255, 255)
+        color = (0, 50, 255) if val > CONFIG['predicted_val_threshold'] else (0, 255, 255)
         height = int(bar_max_height * val / 100)
         top = bar_max_height + h_thresh - height
         cv2.rectangle(canv.print(), (x, top), (x + bar_width, bar_max_height + h_thresh), color, -1)

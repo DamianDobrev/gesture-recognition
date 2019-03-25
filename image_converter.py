@@ -1,5 +1,6 @@
 import cv2
 import numpy as np
+from PIL import Image
 
 from config import CONFIG
 from image_processing.image_processor import to_50x50_monochrome
@@ -29,6 +30,10 @@ def extract_bounding_boxes_by_skin_threshold(ip, image):
     return skin, mask_binary, bbox, square_bbox
 
 
+def to_monochrome(im):
+    return np.array(Image.fromarray(im).convert('L'))
+
+
 def convert_image(ip, img):
     skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(ip, img)
 
@@ -43,10 +48,12 @@ def convert_image(ip, img):
     hand_binary_mask = ip.crop_image_by_square_bbox(binary_mask, sq_bbox, size)
     hand_binary_mask = cv2.cvtColor(hand_binary_mask, cv2.COLOR_GRAY2BGR)
 
+    skin_monochrome = cv2.cvtColor(cv2.equalizeHist(to_monochrome(skin)), cv2.COLOR_GRAY2BGR)
     return {
         'orig': img,
         'orig_bboxes': frame_with_rect_sq_bboxes,
         'skin': skin,
+        'skin_monochrome': skin_monochrome,
         'hand': hand,
         'binary_mask': cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR),
         'hand_binary_mask': hand_binary_mask,

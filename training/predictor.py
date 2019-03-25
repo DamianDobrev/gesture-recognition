@@ -22,6 +22,9 @@ def predict(img):
     prediction = model.predict(np.array([img]))
     normalized = normalize_list(list(prediction[0]))
 
-    idx = normalized.index(max(normalized))
+    idx_of_max = normalized.index(max(normalized))
 
-    return idx + 1, normalized, CONFIG['classes'][idx]  # Class is from 1 to 5. No 0s.
+    if normalized[idx_of_max] < CONFIG['predicted_val_threshold']:
+        return -1, normalized, '--none--'
+
+    return idx_of_max + 1, normalized, CONFIG['classes'][idx_of_max]

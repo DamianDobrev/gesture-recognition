@@ -9,5 +9,8 @@ CONFIG = {
     'size': 200,
     'predictor_model_dir': '2019-03-25__02-18-07',
     'num_training_samples': 680,
+    # The certainty percentage for a gestures in order for it
+    # to be considered predicted successfully.
+    'predicted_val_threshold': 95.00,
     'classes': ['stop', 'palm', 'right', 'left', 'hover', 'updown', 'fist', 'peace', 'rock']
 }
