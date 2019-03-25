@@ -10,16 +10,14 @@ class Canvas:
         return self.canvas
 
     def draw_text(self, line_num=1, text=''):
-        bottomLeftCornerOfText = (20, 50 + line_num * 20)
-        fontScale = 0.4
-        fontColor = (255, 255, 255)
-        lineType = 1
+        bottom_left_corner = (20, 50 + line_num * 20)
+        font_scale = 0.4
+        font_color = (255, 255, 255)
+        line_type = 1
         cv2.putText(self.canvas, text,
-                    bottomLeftCornerOfText,
+                    bottom_left_corner,
                     cv2.FONT_HERSHEY_SIMPLEX,
-                    fontScale,
-                    fontColor,
-                    lineType)
+                    font_scale, font_color, line_type)
 
     def print(self):
         return self.canvas

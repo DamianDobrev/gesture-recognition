@@ -6,7 +6,7 @@ from image_converter import convert_img_for_test_or_prediction
 from image_processing import image_processor
 from loop import loop
 from training.predictor import predict
-from vis import visualise
+from vis import visualise, visualise_prediction
 
 size = CONFIG['size']
 
@@ -23,6 +23,7 @@ def predict_action(ip, orig_frame):
     ]
 
     visualise(img_conversions, texts)
+    visualise_prediction(normalized_vals, CONFIG['classes'])
     cv2.waitKey(1)
 
 

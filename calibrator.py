@@ -132,6 +132,7 @@ def prompt_calibration():
         reset_everything()
         print('started calibration...')
         l_range, u_range = run_calibrator()
+        cv2.destroyAllWindows()
         reset_everything()
         print('~~ finished calibration. HSV values:')
         print('  - lower: ', str(l_range))

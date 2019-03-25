@@ -37,6 +37,28 @@ def visualise(img_conversions, texts_list):
     cv2.imshow(window_name, np.vstack([stack1, stack2]))
 
 
+def visualise_prediction(vals, classes):
+    canv = Canvas((340, 800, 3))
+
+    h_thresh = 40
+    bar_width = 60
+    bar_max_height = 250
+    spacing = 10
+
+    for idx, val in enumerate(vals):
+        x = spacing + bar_width * idx + spacing * idx
+        color = (0, 50, 255) if val > 98.00 else (0, 255, 255)
+        height = int(bar_max_height * val / 100)
+        top = bar_max_height + h_thresh - height
+        cv2.rectangle(canv.print(), (x, top), (x + bar_width, bar_max_height + h_thresh), color, -1)
+        cv2.putText(canv.print(),
+                    classes[int(idx)],
+                    (int(x), bar_max_height + h_thresh + 20),
+                    cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
+
+    cv2.imshow('Predictions', canv.print())
+
+
 def visualise_orig(orig_mark_center, texts_list):
     top_canvas = Canvas((400, orig_mark_center.shape[1], 3))
 
