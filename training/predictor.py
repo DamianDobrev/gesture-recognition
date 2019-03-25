@@ -6,17 +6,7 @@ from keras.models import load_model
 
 from config import CONFIG
 
-# model_folder_name = '2019-03-18__23-55-36'  # 100 images per class, 5 classes
-# model_folder_name = '2019-03-24__22-48-54'  # 680 images per class, 9 classes
-model_folder_name = '2019-03-25__01-16-58'  # 680 images per class, 9 classes
-
-model = load_model(os.path.join(CONFIG['path_to_results'], model_folder_name, 'model.hdf5'))
-
-# !!! Note.
-# This model works very well: '2019-03-18__23-55-36'.
-# However it only has 5 classes, and they are in different order.
-# If one would want to test it, the classes from CONFIG['classes'] have to be replaced with this array:
-# ['stop', 'fist', 'right', 'left', 'updown']
+model = load_model(os.path.join(CONFIG['path_to_results'], CONFIG['predictor_model_dir'], 'model.hdf5'))
 
 
 def normalize_list(l):

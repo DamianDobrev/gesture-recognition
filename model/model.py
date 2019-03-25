@@ -74,14 +74,14 @@ def save_data_info(file_dir, x_train, x_test, y_train, y_test):
     f.write('len(x_test): ' + str(len(x_test)) + '\n')
     f.close()
 
-    for idx, img in enumerate(x_train):
-        img_path = os.path.join(data_path, str(config.CONFIG['classes'][y_train[idx]]))
+    for idx, img in enumerate(x_test):
+        img_path = os.path.join(data_path, str(config.CONFIG['classes'][y_test[idx]]))
         create_path_if_does_not_exist(img_path)
         conv = np.moveaxis(img, 0, -1)
         cv2.imwrite(os.path.join(img_path, 'img-' + str(random.randrange(999999)) + '.png'), conv)
 
 
-def save_additional_info_file(file_dir):
+def save_notes(file_dir):
     f = open(os.path.join(file_dir, 'notes.txt'), 'w+')
     f.write('# Add notes here about this training/model...' + '\n')
     f.close()
@@ -160,7 +160,9 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     ts = time.time()
     st = datetime.datetime.fromtimestamp(ts).strftime('%Y-%m-%d__%H-%M-%S')
     create_path_if_does_not_exist(os.path.join(results_path, st))
-    save_additional_info_file(os.path.join(results_path, st))
+    save_notes(os.path.join(results_path, st))
+    print('saving data...')
+    save_data_info(os.path.join(results_path, st), X_train, X_test, Y_train, Y_test)
 
     print('started training...')
     csv_logger = CSVLogger(os.path.join(results_path, st, 'model_fit_log.csv'), append=True, separator=';')
@@ -176,13 +178,16 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     print('eval:', eval)
 
     # Save weights and model.
+    print('saving weights...')
     model.save_weights(os.path.join(results_path, st, "weight.hdf5"), overwrite=True)
+    print('saving model...')
     model.save(os.path.join(results_path, st, "model.hdf5"), overwrite=True)
 
     # Save model and training info.
+    print('saving histograms...')
     save_hist(hist, os.path.join(results_path, st))
+    print('saving info...')
     save_info(os.path.join(results_path, st), model, eval)
-    save_data_info(os.path.join(results_path, st), X_train, X_test, Y_train, Y_test)
 
 
 def split_data(data_label_tuples):

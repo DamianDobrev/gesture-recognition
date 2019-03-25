@@ -14,24 +14,10 @@ from model.model import split_data, create_model, train_model
 idx = 0
 
 
-def obtain_hsv_ranges():
-    global idx
-    f = open(os.path.join('/Users/damian/Desktop/indivpr/training', 'hsv_ranges.csv'), 'r')
-    f.readline()
-    l_vals = f.readline().split(',')
-    u_vals = f.readline().split(',')
-    f.close()
-    l_range = [int(l_vals[0]), int(l_vals[1]), int(l_vals[2])]
-    u_range = [int(u_vals[0]), int(u_vals[1]), int(u_vals[2])]
-    print('Processing images for class with index: ' + str(idx))
-    idx = idx+1
-    return l_range, u_range
-
-
 def process_tuple(tup):
     images, class_number = tup
 
-    l_range, u_range = obtain_hsv_ranges()
+    l_range, u_range = data.fetch_saved_hsv()
     ip = image_processor.ImageProcessor(CONFIG['size'], l_range, u_range)
 
     def convert_img_for_test_or_prediction_no_params(img):

@@ -5,6 +5,7 @@ import imutils
 import numpy as np
 
 from config import CONFIG
+from data import fetch_saved_hsv
 from image_converter import convert_img_for_test_or_prediction, get_center_hsv, extract_bounding_boxes_by_skin_threshold
 from image_processing import image_processor
 from image_processing.canvas import Canvas
@@ -129,7 +130,7 @@ def prompt_calibration():
         cv2.destroyAllWindows()
 
         reset_everything()
-        print('~~ started calibration')
+        print('started calibration...')
         l_range, u_range = run_calibrator()
         reset_everything()
         print('~~ finished calibration. HSV values:')
@@ -138,21 +139,11 @@ def prompt_calibration():
 
         return l_range, u_range
     else:
-        # Best config for home lamps:
-        # - lower: [3, 37, 64]
-        # - upper: [177, 168, 154]
+        l_range_def, u_range_def = fetch_saved_hsv()
+        # l_range_def = [4, 39, 23]
+        # u_range_def = [177, 214, 118]
 
-        # For palm is good:
-        # - lower:  [4, 39, 23]
-        # - upper: [177, 214, 118]
-
-        # For hover is good:
-        #  - lower:  [3, 61, 45]
-        #  - upper:  [177, 198, 134]
-        l_range_def = [4, 39, 23]
-        u_range_def = [177, 214, 118]
-
-        print('default calibration selected: ')
+        print('~~ default calibration selected: ')
         print('  - lower: ', str(l_range_def))
         print('  - upper: ', str(u_range_def))
 

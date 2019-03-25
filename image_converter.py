@@ -19,6 +19,7 @@ def extract_bounding_boxes_by_skin_threshold(ip, image):
     skin = ip.extract_skin(image)
 
     binary_skin = ip.hsv_to_binary(skin)
+
     mask_binary = ip.find_largest_connected_component(binary_skin)
 
     # Find bounding boxes.
@@ -37,7 +38,10 @@ def convert_image(ip, img):
 
     # Crop frame and binary mask to the correct bounding box.
     hand = ip.crop_image_by_square_bbox(img, sq_bbox, size)
-    hand_binary_mask = cv2.cvtColor(ip.crop_image_by_square_bbox(binary_mask, sq_bbox, size), cv2.COLOR_GRAY2BGR)
+    skin = cv2.bitwise_and(skin, skin, mask=binary_mask)
+    skin = ip.crop_image_by_square_bbox(skin, sq_bbox, size)
+    hand_binary_mask = ip.crop_image_by_square_bbox(binary_mask, sq_bbox, size)
+    hand_binary_mask = cv2.cvtColor(hand_binary_mask, cv2.COLOR_GRAY2BGR)
 
     return {
         'orig': img,
@@ -53,9 +57,12 @@ def convert_image(ip, img):
 
 def convert_img_for_test_or_prediction(ip, img):
     params = convert_image(ip, img)
-    new_img = params['hand']
+    new_img = params['skin']
     # new_img = params['hand_binary_mask']
     new_img = to_50x50_monochrome(new_img)
+    new_img = np.moveaxis(new_img, 0, -1)
+    new_img = np.array([cv2.equalizeHist(new_img)])
+    # new_img = np.moveaxis(new_img, -1, 0)
     # cv2.imshow('to_pred', np.moveaxis(new_img, 0, -1))
     # cv2.waitKey(1)
     return new_img, params
