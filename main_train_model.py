@@ -1,9 +1,4 @@
-import csv
-import os
-
 import cv2
-
-import numpy as np
 
 import data
 from config import CONFIG

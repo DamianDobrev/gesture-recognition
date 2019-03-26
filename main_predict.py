@@ -17,7 +17,7 @@ def predict_action(ip, orig_frame):
     class_num, normalized_vals, class_name = predict(img_to_predict)
 
     texts = [
-        '~~~~ PREDICTION MODE ~~~~'
+        '~~~~ PREDICTION MODE ~~~~',
         'hsv: ' + str(img_conversions['center_hsv']),
         'predicted: ' + class_name
     ]

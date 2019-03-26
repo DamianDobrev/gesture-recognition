@@ -49,8 +49,10 @@ def convert_image(ip, img):
     hand_binary_mask = cv2.cvtColor(hand_binary_mask, cv2.COLOR_GRAY2BGR)
 
     skin_monochrome = cv2.cvtColor(cv2.equalizeHist(to_monochrome(skin)), cv2.COLOR_GRAY2BGR)
+    orig_monochrome = cv2.cvtColor(cv2.equalizeHist(to_monochrome(img)), cv2.COLOR_GRAY2BGR)
     return {
         'orig': img,
+        'orig_monochrome': orig_monochrome,
         'orig_bboxes': frame_with_rect_sq_bboxes,
         'skin': skin,
         'skin_monochrome': skin_monochrome,
@@ -64,12 +66,13 @@ def convert_image(ip, img):
 
 def convert_img_for_test_or_prediction(ip, img):
     params = convert_image(ip, img)
-    new_img = params['skin']
+    # new_img = params['orig_monochrome']
+    new_img = params['skin_monochrome']
     # new_img = params['hand_binary_mask']
     new_img = to_50x50_monochrome(new_img)
-    new_img = np.moveaxis(new_img, 0, -1)
-    new_img = np.array([cv2.equalizeHist(new_img)])
+    # new_img = np.moveaxis(new_img, 0, -1)
+    # new_img = np.array([cv2.equalizeHist(new_img)])
     # new_img = np.moveaxis(new_img, -1, 0)
-    # cv2.imshow('to_pred', np.moveaxis(new_img, 0, -1))
-    # cv2.waitKey(1)
+    cv2.imshow('to_pred', np.moveaxis(new_img, 0, -1))
+    cv2.waitKey(1)
     return new_img, params

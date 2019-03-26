@@ -20,12 +20,10 @@ import os
 
 K.set_image_dim_ordering('th')
 
-img_rows, img_cols = 50, 50
-
+img_rows, img_cols = config.CONFIG['training_img_size'], config.CONFIG['training_img_size']
+batch_size = config.CONFIG['batch_size']
+num_epochs = config.CONFIG['num_epochs']
 results_path = config.CONFIG['path_to_results']
-
-batch_size = 128
-num_epochs = 10
 
 
 def create_path_if_does_not_exist(path):
@@ -113,24 +111,20 @@ def create_model(num_classes):
 
     global get_output
     model = Sequential()
-    l_input = Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size),
-                     padding='valid',
-                     input_shape=(1, img_rows, img_cols))
-    model.add(l_input)
 
     layers = [
-        Activation('relu'),
-        Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size)),
-        Activation('relu'),
+        Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size),
+               padding='valid',
+               activation='relu',
+               input_shape=(1, img_rows, img_cols)),
+        Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size), activation='relu'),
         MaxPooling2D(pool_size=(pool_size, pool_size)),
         Dropout(0.5),
 
         Flatten(),
-        Dense(128),
-        Activation('relu'),
+        Dense(128, activation='relu'),
         Dropout(0.5),
-        Dense(num_classes),
-        Activation('softmax')
+        Dense(num_classes, activation='softmax')
     ]
 
     for layer in layers:
@@ -139,12 +133,11 @@ def create_model(num_classes):
     # Save model.
     model.compile(loss='sparse_categorical_crossentropy', optimizer='adadelta', metrics=['accuracy'])
 
-    # Model summary
+    # Print model summary and config details.
     model.summary()
-    # Model config details
     model.get_config()
 
-    layer = model.layers[11]
+    layer = model.layers[len(model.layers) - 1]
     get_output = K.function([model.layers[0].input, K.learning_phase()], [layer.output, ])
 
     return model
