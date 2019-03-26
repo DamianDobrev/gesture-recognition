@@ -18,89 +18,15 @@ import config
 import os
 
 # Just to specify that the images have to be provided in the model in format (X, Y, channels).
+from modules.common import create_path_if_does_not_exist
+from modules.model.save_data import save_notes, save_data_info, save_hist, save_info, save_config, save_confusion_matrix
+
 K.set_image_dim_ordering('tf')
 
 img_rows, img_cols = config.CONFIG['training_img_size'], config.CONFIG['training_img_size']
 batch_size = config.CONFIG['batch_size']
 num_epochs = config.CONFIG['num_epochs']
 results_path = config.CONFIG['path_to_results']
-
-
-def create_path_if_does_not_exist(path):
-    if not os.path.exists(path):
-        os.makedirs(path)
-
-
-def save_hist(hist, path_to_save):
-    # visualizing losses and accuracy
-    train_loss = hist.history['loss']
-    val_loss = hist.history['val_loss']
-    train_acc = hist.history['acc']
-    val_acc = hist.history['val_acc']
-    xc = range(len(train_loss))
-
-    # Loss.
-    fig_loss = plt.figure(1,figsize=(7,5))
-    plt.plot(xc, train_loss)
-    plt.plot(xc, val_loss)
-    plt.xlabel('num of Epochs')
-    plt.ylabel('loss')
-    plt.title('train_loss vs val_loss')
-    plt.grid(True)
-    plt.legend(['train','val'])
-
-    # Acc.
-    fig_acc = plt.figure(2,figsize=(7,5))
-    plt.plot(xc, train_acc)
-    plt.plot(xc, val_acc)
-    plt.xlabel('num of Epochs')
-    plt.ylabel('accuracy')
-    plt.title('train_acc vs val_acc')
-    plt.grid(True)
-    plt.legend(['train','val'],loc=4)
-
-    plt.show()
-    fig_acc.savefig(os.path.join(path_to_save, 'accuracy.png'))
-    fig_loss.savefig(os.path.join(path_to_save, 'loss.png'))
-
-
-def save_data_info(file_dir, x_train, x_test, y_train, y_test):
-    data_path = os.path.join(file_dir, 'data')
-    create_path_if_does_not_exist(data_path)
-
-    f = open(os.path.join(file_dir, 'data', 'data_info.txt'), 'w+')
-    f.write('len(x_train): ' + str(len(x_train)) + '\n')
-    f.write('len(x_test): ' + str(len(x_test)) + '\n')
-    f.close()
-
-    for idx, img in enumerate(x_test):
-        img_path = os.path.join(data_path, str(config.CONFIG['classes'][y_test[idx]]))
-        create_path_if_does_not_exist(img_path)
-        cv2.imwrite(os.path.join(img_path, 'img-' + str(random.randrange(999999)) + '.png'), img)
-
-
-def save_notes(file_dir):
-    f = open(os.path.join(file_dir, 'notes.txt'), 'w+')
-    f.write('# Add notes here about this training/model...' + '\n')
-    f.close()
-
-
-def save_info(file_dir, model, eval):
-    f = open(os.path.join(file_dir, 'eval.txt'), 'w+')
-    f.write('eval_loss=' + str(eval[0]) + '\n')
-    f.write('eval_acc =' + str(eval[1]) + '\n\n')
-    f.close()
-
-    f = open(os.path.join(file_dir, 'model_summary.txt'), 'w+')
-    f.write(str(model.summary(print_fn=lambda x: f.write(x + '\n'))))
-    f.close()
-
-    f = open(os.path.join(file_dir, 'training_summary.txt'), 'w+')
-    f.write('img_w,img_h=' + str(img_cols) + ',' + str(img_rows) + '\n')
-    f.write('batch_size=' + str(batch_size) + '\n')
-    f.write('num_epochs=' + str(num_epochs) + '\n')
-    f.write('classes=' + str(config.CONFIG['classes']))
-    f.close()
 
 
 def create_model(num_classes):
@@ -177,10 +103,13 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     model.save(os.path.join(results_path, st, "model.hdf5"), overwrite=True)
 
     # Save model and training info.
+    path = os.path.join(results_path, st)
     print('saving histograms...')
-    save_hist(hist, os.path.join(results_path, st))
+    save_hist(hist, path)
     print('saving info...')
-    save_info(os.path.join(results_path, st), model, eval)
+    save_info(path, model, eval)
+    save_config(path)
+    save_confusion_matrix(path)
 
 
 def split_data(data_label_tuples):

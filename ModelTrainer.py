@@ -5,21 +5,15 @@ import cv2
 from modules import data
 from config import CONFIG
 # from modules.image_processing.converter import convert_img_for_test_or_prediction
-from modules.image_processing.processor import Processor, to_50x50_monochrome
+from modules.image_processing.processor import resize_to_training_img_size, convert_to_one_channel_monochrome
 from modules.model.model import split_data, create_model, train_model
 
-idx = 0
 
-
-def process_tuple(tup):
+def correct_images_shapes_in_tuple(tup):
     images, class_number = tup
 
-    # l_range, u_range = data.fetch_saved_hsv()
-    # ip = Processor(CONFIG['size'], l_range, u_range)
-    # Use this: convert_img_for_test_or_prediction
-
     def convert_img_for_test_or_prediction_no_params(img):
-        return to_50x50_monochrome(img)
+        return convert_to_one_channel_monochrome(resize_to_training_img_size(img))
 
     return list(map(convert_img_for_test_or_prediction_no_params, images)), class_number
 
@@ -34,8 +28,8 @@ def run_training():
     set_type = CONFIG['training_set_image_type']
     path = os.path.join(set_path, set_name, set_type)
     all_img = data.fetch_training_images(path, CONFIG['num_training_samples'])
-    print('Processing all images as per `convert_img_for_test_or_prediction`...')
-    all_img = list(map(process_tuple, all_img))
+    print('Processing all images to match the shape expected by the model...')
+    all_img = list(map(correct_images_shapes_in_tuple, all_img))
     cv2.destroyAllWindows()
     print('Processing of images done.')
     x_train, x_test, y_train, y_test = split_data(all_img)

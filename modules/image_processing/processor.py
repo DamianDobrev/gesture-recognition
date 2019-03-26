@@ -21,6 +21,17 @@ def to_50x50_monochrome(img):
     return img
 
 
+def convert_to_one_channel_monochrome(img):
+    img_new = np.array(Image.fromarray(img).convert('L'))
+    img_new = np.array([img_new])  # shape should be like (1, 50, 50)
+    img_new = np.moveaxis(img_new, 0, -1)  # shape should be like (50, 50, 1)
+    return img_new
+
+
+def resize_to_training_img_size(img):
+    return cv2.resize(img, (CONFIG['training_img_size'], CONFIG['training_img_size']))
+
+
 class Processor:
     def __init__(self, size, lower, upper):
         self.size = size
