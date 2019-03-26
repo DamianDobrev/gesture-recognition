@@ -1,12 +1,10 @@
-import time
-
 import cv2
 import imutils
 import numpy as np
 
 from config import CONFIG
 from data import fetch_saved_hsv
-from image_converter import convert_img_for_test_or_prediction, get_center_hsv, extract_bounding_boxes_by_skin_threshold
+from image_processing.image_converter import get_center_hsv, extract_bounding_boxes_by_skin_threshold
 from image_processing import image_processor
 from image_processing.canvas import Canvas
 from vis import visualise_orig, append_rectangle_in_center

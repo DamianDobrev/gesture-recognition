@@ -2,12 +2,13 @@ import cv2
 
 from calibrator import prompt_calibration
 from config import CONFIG
-from image_converter import convert_img_for_test_or_prediction
+from image_processing.image_converter import convert_img_for_test_or_prediction
 from image_processing import image_processor
 from loop import loop
 from predictor.predictor import predict
 from vis import visualise, visualise_prediction
 from keras import backend as K
+import numpy as np
 
 # Just to specify that the images have to be provided in the model in format (X, Y, channels).
 K.set_image_dim_ordering('tf')
@@ -17,6 +18,9 @@ size = CONFIG['size']
 
 def predict_action(ip, orig_frame):
     img_to_predict, img_conversions = convert_img_for_test_or_prediction(ip, orig_frame)
+
+    # If the model is trained with shapes (1,50,50), uncomment this line.
+    img_to_predict = np.moveaxis(img_to_predict, -1, 0)
 
     class_num, normalized_vals, class_name = predict(img_to_predict)
 

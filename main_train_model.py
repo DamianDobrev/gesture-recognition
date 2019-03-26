@@ -2,7 +2,7 @@ import cv2
 
 import data
 from config import CONFIG
-from image_converter import convert_img_for_test_or_prediction
+from image_processing.image_converter import convert_img_for_test_or_prediction
 from image_processing import image_processor
 from model.model import split_data, create_model, train_model
 

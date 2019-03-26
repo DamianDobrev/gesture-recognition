@@ -5,7 +5,7 @@ import cv2
 
 from calibrator import prompt_calibration
 from config import CONFIG
-from image_converter import convert_img_for_test_or_prediction
+from image_processing.image_converter import convert_img_for_test_or_prediction
 from image_processing import image_processor
 from loop import loop
 from vis import visualise
