@@ -5,8 +5,12 @@ from config import CONFIG
 from image_converter import convert_img_for_test_or_prediction
 from image_processing import image_processor
 from loop import loop
-from training.predictor import predict
+from predictor.predictor import predict
 from vis import visualise, visualise_prediction
+from keras import backend as K
+
+# Just to specify that the images have to be provided in the model in format (X, Y, channels).
+K.set_image_dim_ordering('tf')
 
 size = CONFIG['size']
 

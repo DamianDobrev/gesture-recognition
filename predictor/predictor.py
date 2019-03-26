@@ -19,6 +19,9 @@ def normalize_list(l):
 
 
 def predict(img):
+    # If the model is trained with shapes (1,50,50), uncomment this line.
+    # img = np.moveaxis(img, -1, 0)  # shape should be like (50, 50, 1)
+
     prediction = model.predict(np.array([img]))
     normalized = normalize_list(list(prediction[0]))
 
