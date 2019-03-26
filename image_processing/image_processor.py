@@ -15,6 +15,7 @@ def to_50x50_monochrome(img):
     img = cv2.resize(img, (50, 50))
     img = to_monochrome(img)
     img = np.array([img])  # shape should be like (1, 50, 50)
+    img = np.moveaxis(img, 0, -1)  # shape should be like (50, 50, 1)
     return img
 
 

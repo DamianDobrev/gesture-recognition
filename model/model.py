@@ -17,6 +17,8 @@ import config
 
 import os
 
+# Just to specify that the images have to be provided in the model in format (X, Y, channels).
+K.set_image_dim_ordering('tf')
 
 img_rows, img_cols = config.CONFIG['training_img_size'], config.CONFIG['training_img_size']
 batch_size = config.CONFIG['batch_size']
@@ -31,13 +33,13 @@ def create_path_if_does_not_exist(path):
 
 def save_hist(hist, path_to_save):
     # visualizing losses and accuracy
-
     train_loss = hist.history['loss']
     val_loss = hist.history['val_loss']
     train_acc = hist.history['acc']
     val_acc = hist.history['val_acc']
     xc = range(len(train_loss))
 
+    # Loss.
     fig_loss = plt.figure(1,figsize=(7,5))
     plt.plot(xc, train_loss)
     plt.plot(xc, val_loss)
@@ -47,6 +49,7 @@ def save_hist(hist, path_to_save):
     plt.grid(True)
     plt.legend(['train','val'])
 
+    # Acc.
     fig_acc = plt.figure(2,figsize=(7,5))
     plt.plot(xc, train_acc)
     plt.plot(xc, val_acc)
@@ -73,8 +76,7 @@ def save_data_info(file_dir, x_train, x_test, y_train, y_test):
     for idx, img in enumerate(x_test):
         img_path = os.path.join(data_path, str(config.CONFIG['classes'][y_test[idx]]))
         create_path_if_does_not_exist(img_path)
-        conv = np.moveaxis(img, 0, -1)
-        cv2.imwrite(os.path.join(img_path, 'img-' + str(random.randrange(999999)) + '.png'), conv)
+        cv2.imwrite(os.path.join(img_path, 'img-' + str(random.randrange(999999)) + '.png'), img)
 
 
 def save_notes(file_dir):
@@ -113,7 +115,7 @@ def create_model(num_classes):
         Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size),
                padding='valid',
                activation='relu',
-               input_shape=(1, img_rows, img_cols)),
+               input_shape=(img_rows, img_cols, 1)),
         Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size), activation='relu'),
         MaxPooling2D(pool_size=(pool_size, pool_size)),
         Dropout(0.5),
@@ -161,7 +163,7 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     # but if we continue with training it will overfit super hard.
     es = EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=2)
     hist = model.fit(X_train, Y_train, batch_size=batch_size,
-                     epochs=num_epochs, verbose=1, validation_split=0.2,
+                     epochs=num_epochs, verbose=1, validation_split=config.CONFIG['validation_split'],
                      callbacks=[csv_logger, es])
     print('finished training...')
 
@@ -194,14 +196,11 @@ def split_data(data_label_tuples):
         all_labels.extend(Label)
 
     all_data, all_labels = shuffle(all_data, all_labels, random_state=2)
-    x_train, x_test, y_train, y_test = train_test_split(all_data, all_labels, test_size=0.2, random_state=4)
-
-    # print('x_train', x_train)
-    # print('x_test', x_test)
-    # print('y_train', y_train)
-    # print('y_test', y_test)
-    # print('all_data', all_data)
-    # print('all_labe', all_labels)
+    x_train, x_test, y_train, y_test = \
+        train_test_split(all_data,
+                         all_labels,
+                         test_size=config.CONFIG['test_split'],
+                         random_state=4)
 
     return np.array(x_train), np.array(x_test), np.array(y_train), np.array(y_test)
 

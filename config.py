@@ -16,12 +16,14 @@ CONFIG = {
 
     # Training parameters.
     # ...
-    'num_training_samples': 680,
+    'num_training_samples': 2,
     # This will also be the folder to which we save images after data collection.
     'path_to_raw': os.path.join(package_directory, 'training', 'captured_images'),
     'num_epochs': 10,
     'batch_size': 128,
     'training_img_size': 50,
+    'test_split': 0.4,
+    'validation_split': 0.2,
 
     # Others.
     # ...
