@@ -47,8 +47,15 @@ def fetch_imgs_from_dir(data_dir, extension='png', max_count=100):
 
 def fetch_training_images(path, max_imgs_per_class):
     folders = os.listdir(path)
+
+    # Remove hidden files and folders (like .DS_Store)
+    folders_visible = []
+    for f in folders:
+        if not f.startswith('.'):
+            folders_visible.append(f)
+
     classes = []
-    for idx, name in enumerate(folders):
+    for idx, name in enumerate(folders_visible):
         images = fetch_imgs_from_dir(os.path.join(path, name), 'png', max_imgs_per_class)
         classes.append((images, int(name) - 1))
     return classes

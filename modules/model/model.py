@@ -6,7 +6,7 @@ import cv2
 
 from keras import backend as K
 from keras import Sequential
-from keras.layers import Conv2D, Activation, MaxPooling2D, Dropout, Flatten, Dense
+from keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import numpy as np
@@ -209,7 +209,6 @@ def to_np_array(list_to_transform):
     shape = list(list_to_transform[0].shape)
     shape[:0] = [len(list_to_transform)]
     return np.concatenate(list_to_transform).reshape(shape)
-    # return np.concatenate(list_to_transform, axis=0)
 
 #
 # inp1 = ([1,2,3,4], 'a')

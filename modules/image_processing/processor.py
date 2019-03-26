@@ -5,6 +5,8 @@ from scipy import ndimage
 from skimage.morphology import label
 from skimage.measure import regionprops
 
+from config import CONFIG
+
 bbthresh = 20
 
 
@@ -12,14 +14,14 @@ def to_50x50_monochrome(img):
     def to_monochrome(im):
         return np.array(Image.fromarray(im).convert('L'))
 
-    img = cv2.resize(img, (50, 50))
+    img = cv2.resize(img, (CONFIG['training_img_size'], CONFIG['training_img_size']))
     img = to_monochrome(img)
     img = np.array([img])  # shape should be like (1, 50, 50)
     img = np.moveaxis(img, 0, -1)  # shape should be like (50, 50, 1)
     return img
 
 
-class ImageProcessor:
+class Processor:
     def __init__(self, size, lower, upper):
         self.size = size
         self.lower = np.array(lower, dtype = "uint8")
@@ -76,7 +78,7 @@ class ImageProcessor:
             img = img_in.copy()
             # Enable for daylight!
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-            img = cv2.erode(img, kernel, iterations=3)
+            img = cv2.erode(img, kernel, iterations=2)
             img = cv2.dilate(img, kernel, iterations=2)
             return img
 

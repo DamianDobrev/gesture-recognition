@@ -1,12 +1,12 @@
 import cv2
 
-from calibrator import prompt_calibration
+from modules.calibrator import prompt_calibration
 from config import CONFIG
-from image_processing.image_converter import convert_img_for_test_or_prediction
-from image_processing import image_processor
-from loop import loop
-from predictor.predictor import predict
-from vis import visualise, visualise_prediction
+from modules.image_processing.converter import convert_img_for_test_or_prediction
+from modules.image_processing.processor import Processor
+from modules.loop import loop
+from modules.predictor.predictor import predict
+from modules.visualiser.vis import visualise, visualise_prediction
 from keras import backend as K
 import numpy as np
 
@@ -20,7 +20,7 @@ def predict_action(ip, orig_frame):
     img_to_predict, img_conversions = convert_img_for_test_or_prediction(ip, orig_frame)
 
     # If the model is trained with shapes (1,50,50), uncomment this line.
-    img_to_predict = np.moveaxis(img_to_predict, -1, 0)
+    # img_to_predict = np.moveaxis(img_to_predict, -1, 0)
 
     class_num, normalized_vals, class_name = predict(img_to_predict)
 
@@ -38,7 +38,7 @@ def predict_action(ip, orig_frame):
 print('Starting predicting mode...')
 
 l_range, u_range = prompt_calibration()
-ip = image_processor.ImageProcessor(size, l_range, u_range)
+ip = Processor(size, l_range, u_range)
 
 loop(predict_action, ip)
 cv2.waitKey(0)

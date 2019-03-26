@@ -1,7 +1,7 @@
 import cv2
 import numpy as np
 
-from image_processing.canvas import Canvas
+from modules.image_processing.canvas import Canvas
 from config import CONFIG
 
 # size = CONFIG['size']

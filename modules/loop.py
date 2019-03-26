@@ -5,12 +5,10 @@ from config import CONFIG
 
 size = CONFIG['size']
 
-path_to_captured_images = './training/captured_images/'
-path_to_captured_masks = './training/captured_masks/'
-
 
 def loop(fn, ip):
     cap = cv2.VideoCapture(0)
+    cap.set(15, 0.00001)
 
     while True:
         ret, frame = cap.read()

@@ -3,11 +3,11 @@ import imutils
 import numpy as np
 
 from config import CONFIG
-from data import fetch_saved_hsv
-from image_processing.image_converter import get_center_hsv, extract_bounding_boxes_by_skin_threshold
-from image_processing import image_processor
-from image_processing.canvas import Canvas
-from vis import visualise_orig, append_rectangle_in_center
+from modules.data import fetch_saved_hsv
+from modules.image_processing.converter import get_center_hsv, extract_bounding_boxes_by_skin_threshold
+from modules.image_processing.processor import Processor
+from modules.image_processing.canvas import Canvas
+from modules.visualiser.vis import visualise_orig, append_rectangle_in_center
 
 size = CONFIG['size']
 
@@ -36,7 +36,7 @@ def save_ranges(frame):
 
     pred_size = 200
     frame = imutils.resize(frame, height=pred_size)
-    ip = image_processor.ImageProcessor(size, lower_range, upper_range)
+    ip = Processor(size, lower_range, upper_range)
     frame = ip.crop(frame, pred_size)
 
     h, s, v = get_center_hsv(frame)

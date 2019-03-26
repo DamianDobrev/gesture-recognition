@@ -3,7 +3,7 @@ import numpy as np
 from PIL import Image
 
 from config import CONFIG
-from image_processing.image_processor import to_50x50_monochrome
+from modules.image_processing.processor import to_50x50_monochrome
 
 size = CONFIG['size']
 
