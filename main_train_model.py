@@ -29,6 +29,7 @@ def run_training():
     all_img = data.fetch_training_images(CONFIG['path_to_raw'], CONFIG['num_training_samples'])
     print('Processing all images as per `convert_img_for_test_or_prediction`...')
     all_img = list(map(process_tuple, all_img))
+    cv2.destroyAllWindows()
     print('Processing of images done.')
     x_train, x_test, y_train, y_test = split_data(all_img)
 

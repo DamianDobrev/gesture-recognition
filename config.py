@@ -11,6 +11,9 @@ CONFIG = {
     # to be considered predicted successfully.
     'predicted_val_threshold': 95.00,
 
+    # Collecting data parameters:
+    'class_to_collect_data': 1,
+
     # Training parameters.
     # ...
     'num_training_samples': 680,

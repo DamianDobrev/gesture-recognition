@@ -65,6 +65,9 @@ class ImageProcessor:
     def hsv_to_binary(self, image):
         binary_mask = cv2.inRange(image, np.array([5, 5, 5], dtype = "uint8"), np.array([179, 255, 255], dtype = "uint8"))
         binary_mask = cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR)
+
+        # another =  self.normalize_hist(image.copy())
+        # cv2.imshow('asdsadsa', another)
         img = cv2.cvtColor(image.copy(), cv2.COLOR_HSV2BGR)
         binary_img = img[:,:,0] & binary_mask[:,:,0]
 

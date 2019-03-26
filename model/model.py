@@ -18,8 +18,6 @@ import config
 import os
 
 
-K.set_image_dim_ordering('th')
-
 img_rows, img_cols = config.CONFIG['training_img_size'], config.CONFIG['training_img_size']
 batch_size = config.CONFIG['batch_size']
 num_epochs = config.CONFIG['num_epochs']
@@ -109,7 +107,6 @@ def create_model(num_classes):
     conv_kernel_size = 3
     pool_size = 2
 
-    global get_output
     model = Sequential()
 
     layers = [
@@ -137,8 +134,9 @@ def create_model(num_classes):
     model.summary()
     model.get_config()
 
-    layer = model.layers[len(model.layers) - 1]
-    get_output = K.function([model.layers[0].input, K.learning_phase()], [layer.output, ])
+    # TODO Do i even need this?
+    # layer = model.layers[len(model.layers) - 1]
+    # get_output = K.function([model.layers[0].input, K.learning_phase()], [layer.output, ])
 
     return model
 
@@ -161,7 +159,7 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     csv_logger = CSVLogger(os.path.join(results_path, st, 'model_fit_log.csv'), append=True, separator=';')
     # Add early stopping because the model may reach super-high accuracy in ~5 epochs
     # but if we continue with training it will overfit super hard.
-    es = EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=6)
+    es = EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=2)
     hist = model.fit(X_train, Y_train, batch_size=batch_size,
                      epochs=num_epochs, verbose=1, validation_split=0.2,
                      callbacks=[csv_logger, es])
@@ -196,7 +194,7 @@ def split_data(data_label_tuples):
         all_labels.extend(Label)
 
     all_data, all_labels = shuffle(all_data, all_labels, random_state=2)
-    x_train, x_test, y_train, y_test = train_test_split(all_data, all_labels, test_size=0.05, random_state=4)
+    x_train, x_test, y_train, y_test = train_test_split(all_data, all_labels, test_size=0.2, random_state=4)
 
     # print('x_train', x_train)
     # print('x_test', x_test)

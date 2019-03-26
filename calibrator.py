@@ -32,14 +32,6 @@ def reset_everything():
     should_save = False
 
 
-def normalize_hist(img):
-    img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
-    # equalize the histogram of the Y channel
-    img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
-    # convert the YUV image back to BGR format
-    return cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
-
-
 # frame is BGR
 def save_ranges(frame):
     global l_h, l_s, l_v, h_h, h_s, h_v, lower_range, upper_range, should_save
