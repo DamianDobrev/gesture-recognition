@@ -3,7 +3,8 @@ import numpy as np
 from PIL import Image
 
 from config import CONFIG
-from modules.image_processing.processor import to_50x50_monochrome
+from modules.image_processing.processor import convert_to_one_channel_monochrome, \
+    resize_to_training_img_size
 
 size = CONFIG['size']
 
@@ -68,8 +69,8 @@ def convert_img_for_test_or_prediction(ip, img):
     # new_img = params['orig_monochrome']
     new_img = params['skin_monochrome']
     # new_img = params['hand_binary_mask']
-    new_img = to_50x50_monochrome(new_img)
+    new_img = convert_to_one_channel_monochrome(new_img)
+    new_img = resize_to_training_img_size(new_img)
     # new_img = np.array([cv2.equalizeHist(new_img)])
     cv2.imshow('to_pred', new_img)
-    cv2.waitKey(1)
     return new_img, params

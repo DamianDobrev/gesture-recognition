@@ -10,7 +10,6 @@ from keras.layers import Conv2D, MaxPooling2D, Dropout, Flatten, Dense
 from sklearn.utils import shuffle
 from sklearn.model_selection import train_test_split
 import numpy as np
-from matplotlib import pyplot as plt
 from keras.callbacks import CSVLogger, EarlyStopping
 
 import config

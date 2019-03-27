@@ -7,19 +7,6 @@ from skimage.measure import regionprops
 
 from config import CONFIG
 
-bbthresh = 20
-
-
-def to_50x50_monochrome(img):
-    def to_monochrome(im):
-        return np.array(Image.fromarray(im).convert('L'))
-
-    img = cv2.resize(img, (CONFIG['training_img_size'], CONFIG['training_img_size']))
-    img = to_monochrome(img)
-    img = np.array([img])  # shape should be like (1, 50, 50)
-    img = np.moveaxis(img, 0, -1)  # shape should be like (50, 50, 1)
-    return img
-
 
 def convert_to_one_channel_monochrome(img):
     img_new = np.array(Image.fromarray(img).convert('L'))
@@ -35,8 +22,8 @@ def resize_to_training_img_size(img):
 class Processor:
     def __init__(self, size, lower, upper):
         self.size = size
-        self.lower = np.array(lower, dtype = "uint8")
-        self.upper = np.array(upper, dtype = "uint8")
+        self.lower = np.array(lower, dtype="uint8")
+        self.upper = np.array(upper, dtype="uint8")
 
     def crop(self, img, size=None):
         if size is None:
@@ -46,18 +33,6 @@ class Processor:
         w_sp = int((w - size) / 2)
         frame = img[h_sp:h_sp+size, w_sp:w_sp+size]
         return frame
-
-    def increase_saturation(self, img):
-        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        img_hsv[..., 1] = img_hsv[..., 1] * 1.4
-        return cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
-
-    def normalize_hist(self, img):
-        img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
-        # equalize the histogram of the Y channel
-        img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
-        # convert the YUV image back to BGR format
-        return cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
 
     def extract_skin(self, img):
         image = img.copy()
@@ -76,7 +51,22 @@ class Processor:
 
         return cv2.bitwise_and(image, image, mask=skin_mask)
 
-    def hsv_to_binary(self, image):
+    @staticmethod
+    def increase_saturation(img):
+        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        img_hsv[..., 1] = img_hsv[..., 1] * 1.4
+        return cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
+
+    @staticmethod
+    def normalize_hist(img):
+        img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
+        # equalize the histogram of the Y channel
+        img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
+        # convert the YUV image back to BGR format
+        return cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
+
+    @staticmethod
+    def hsv_to_binary(image):
         binary_mask = cv2.inRange(image, np.array([5, 5, 5], dtype = "uint8"), np.array([179, 255, 255], dtype = "uint8"))
         binary_mask = cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR)
 
@@ -114,7 +104,8 @@ class Processor:
 
         return binary_img
 
-    def find_largest_connected_component(self, img):
+    @staticmethod
+    def find_largest_connected_component(img):
         new_img = np.zeros_like(img)  # step 1
         for val in np.unique(img)[1:]:  # step 2
             mask = np.uint8(img == val)  # step 3
@@ -123,7 +114,8 @@ class Processor:
             new_img[labels == largest_label] = val  # step 6
         return new_img
 
-    def find_bounding_box_of_binary_img_with_single_component(self, binary_img, thresh=bbthresh):
+    @staticmethod
+    def find_bounding_box_of_binary_img_with_single_component(binary_img, thresh=CONFIG['bbox_threshold']):
         mask_label = label(binary_img)
         props = regionprops(mask_label)
         height, width = binary_img.shape
@@ -136,10 +128,12 @@ class Processor:
             return bbox
         return [0, 0, 0, 0]  # Default, if the mask is full of zeros we need to return something.
 
-    def add_bounding_box_to_img(self, img, bbox, color=(30, 0, 255), thresh=0):
+    @staticmethod
+    def add_bounding_box_to_img(img, bbox, color=(30, 0, 255), thresh=0):
         return cv2.rectangle(img.copy(), (bbox[1] - thresh, bbox[0] - thresh), (bbox[3] + thresh, bbox[2] + thresh), color, 2)
 
-    def get_square_bbox(self, bbox, image, thresh=0):
+    @staticmethod
+    def get_square_bbox(bbox, image, thresh=0):
         """
         Takes an image and a rectangular bbox, and returns a squared bbox which "envelops" the rectangular bbox.
         Threshold can be provided as well. TODO test the threshold.
@@ -191,7 +185,8 @@ class Processor:
 
         return [int(new_top_left_y), int(new_top_left_x), int(new_bottom_right_y), int(new_bottom_right_x)]
 
-    def crop_image_by_square_bbox(self, frame, square_bbox, size_width):
+    @staticmethod
+    def crop_image_by_square_bbox(frame, square_bbox, size_width):
         if square_bbox[2]-square_bbox[0] != square_bbox[3]-square_bbox[1]:
             raise AttributeError('crop_image_by_square_bbox should only accept square bboxes')
         new_frame = frame[square_bbox[0]:square_bbox[2], square_bbox[1]:square_bbox[3]]

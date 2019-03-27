@@ -36,7 +36,7 @@ def collect_action(ip, frame):
 
     img, img_conversions = convert_img_for_test_or_prediction(ip, frame)
 
-    if cv2.waitKey(2) & 0xFF == ord('s'):
+    if cv2.waitKey(1) & 0xFF == ord('s'):
         is_capturing = not is_capturing
         if not is_capturing:
             print('Press "s" to start capturing')
@@ -79,7 +79,8 @@ if not os.path.exists(output_dir):
 # Calibrate.
 l_range, u_range = prompt_calibration()
 ip = Processor(size, l_range, u_range)
+cv2.destroyAllWindows()
 
 # Start data collection mode.
 loop(collect_action, ip)
-cv2.waitKey(0)
+# cv2.waitKey(0)
