@@ -3,6 +3,8 @@ import random
 
 import cv2
 from matplotlib import pyplot as plt
+from sklearn.metrics import confusion_matrix
+import numpy as np
 
 from config import CONFIG
 from modules.common import create_path_if_does_not_exist
@@ -94,6 +96,48 @@ def save_config(file_dir):
     f.close()
 
 
-def save_confusion_matrix(file_dir):
-    # TODO implement
-    pass
+def save_confusion_matrix(file_dir, predictions, y_test):
+    """
+    Saves a confusion matrix in .txt format, and plotted confusion matrix in
+        .png format.
+    :param file_dir:
+    :param predictions: A list of predictions. Each prediction is a list of
+        elements, the length of which is the number of classes. Each entry is
+        a scalar, the prediction probability. The index of the max element is
+        the label.
+    :param y_test: The real labels.
+    :return:
+    """
+
+    def plot_confusion_matrix(cm):
+        # Plotting as suggested in this SO answer:
+        # https://stackoverflow.com/a/19252430
+        labels = CONFIG['classes']
+        fig = plt.figure('conf_matrix')
+        ax = fig.add_subplot(111)
+        cax = ax.matshow(cm)
+        plt.title('Confusion matrix of the classifier')
+        fig.colorbar(cax)
+        ax.set_xticklabels([''] + labels)
+        ax.set_yticklabels([''] + labels)
+        plt.xlabel('Predicted')
+        plt.ylabel('True')
+        plt.show()
+        return fig
+
+    # Convert the predictions to labels by finding the max value index.
+    # For example, converts:
+    #   [ [0.1, 0.7, 0.2], [0.3, 0.3, 0.4] ]
+    # to:
+    #   [1, 2]
+    y_pred = np.array(list(map(lambda probabilities:
+                               list(np.array(probabilities)).index(max(list(np.array(probabilities))))
+                               , predictions)))
+    cm = confusion_matrix(y_pred, y_test)
+    # Save matrix as .txt.
+    f = open(os.path.join(file_dir, 'confusion_matrix.txt'), 'w+')
+    f.write(str(cm))
+    f.close()
+    # Plot and save as .png.
+    cm_plot = plot_confusion_matrix(cm)
+    cm_plot.savefig(os.path.join(file_dir, 'confusion_matrix.png'))

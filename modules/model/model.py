@@ -87,7 +87,7 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     csv_logger = CSVLogger(os.path.join(results_path, st, 'model_fit_log.csv'), append=True, separator=';')
     # Add early stopping because the model may reach super-high accuracy in ~5 epochs
     # but if we continue with training it will overfit super hard.
-    es = EarlyStopping(monitor='val_acc', mode='max', verbose=1, patience=2)
+    es = EarlyStopping(monitor='acc', mode='max', verbose=1, patience=3)
     hist = model.fit(X_train, Y_train, batch_size=batch_size,
                      epochs=num_epochs, verbose=1, validation_split=config.CONFIG['validation_split'],
                      callbacks=[csv_logger, es])
@@ -108,8 +108,11 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     save_hist(hist, path)
     print('saving info...')
     save_info(path, model, eval)
+    print('saving config...')
     save_config(path)
-    save_confusion_matrix(path)
+    print('saving confusion matrix...')
+    prediction = model.predict(X_test)
+    save_confusion_matrix(path, prediction, Y_test)
 
 
 def split_data(data_label_tuples):
