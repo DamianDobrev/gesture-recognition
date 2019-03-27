@@ -5,7 +5,7 @@ from modules.image_processing.canvas import Canvas
 from config import CONFIG
 
 # size = CONFIG['size']
-window_name = 'Img with Bbox + processing.'
+window_name = CONFIG['imshow_window_name']
 
 num_canvas_lines = 8
 
@@ -35,7 +35,7 @@ def visualise(img_conversions, texts_list):
     stack1 = np.hstack([orig_mark_center, img_conversions['skin'], top_canvas.print()])
     stack2 = np.hstack([img_conversions['hand_binary_mask'], img_conversions['skin_monochrome'], bot_canvas.print()])
 
-    cv2.imshow(window_name, np.vstack([stack1, stack2]))
+    cv2.imshow(CONFIG['imshow_window_name'], np.vstack([stack1, stack2]))
 
 
 def visualise_prediction(vals, classes):
@@ -71,4 +71,4 @@ def visualise_orig(orig_mark_center, texts_list):
 
     stack1 = np.vstack([orig_mark_center, top_canvas.print()])
 
-    cv2.imshow(window_name, stack1)
+    cv2.imshow(CONFIG['imshow_window_name'], stack1)

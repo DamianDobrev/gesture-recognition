@@ -6,7 +6,7 @@ from keras.models import load_model
 
 from config import CONFIG
 
-model = load_model(os.path.join(CONFIG['path_to_results'], CONFIG['predictor_model_dir'], 'model.hdf5'))
+model = load_model(os.path.join(CONFIG['results_path'], CONFIG['predictor_model_dir'], 'model.hdf5'))
 
 
 def normalize_list(l):

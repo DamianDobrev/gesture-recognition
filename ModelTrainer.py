@@ -27,10 +27,10 @@ def run_training():
 
     # Data fetching
     # ...
-    set_path = CONFIG['training_sets_path']
+    data_path = CONFIG['training_data_path']
     set_name = CONFIG['training_set_name']
     set_type = CONFIG['training_set_image_type']
-    path = os.path.join(set_path, set_name, set_type)
+    path = os.path.join(data_path, set_name, set_type)
     all_img = data.fetch_training_images(path, CONFIG['num_training_samples'])
     print('Processing all images to match the shape expected by the model...')
     all_img = list(map(correct_images_shapes_in_tuple, all_img))

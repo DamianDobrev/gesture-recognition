@@ -83,7 +83,7 @@ from `/hsv_ranges.csv`.
 #### Data Collector
 This program can be used to extract data images. It runs a loop, and saves images every
 X milliseconds (configured from `CONFIG['miliseconds']`). The folder where the images are saved is 
-created in `config.CONFIG['training_sets_path']/CONFIG['training_set_name]`. Folders for each 
+created in `config.CONFIG['training_data_path']/CONFIG['data_collect_set_name]`. Folders for each 
 type of preprocessing are created, in each folder there are directories named as numbers, 
 from 1 to N, where N is the number of classes.
 
@@ -93,8 +93,8 @@ This class should be a numerical value, equal to the `idx+1` in the list
 
 ##### Example 
 Take the following classes defined in `CONFIG['classes']`: `['fist', 'peace', 'one_finger']`.
-- To collect images for the "peace" class, set `CONFIG['class_to_collect_data']` to `2`.
-- Change the training set name to `"my_gestures"` in `CONFIG['training_set_name']`
+- To collect images for the "peace" class, set `CONFIG['data_collect_class']` to `2`.
+- Change the training set name to `"my_gestures"` in `CONFIG['data_collect_set_name']`
 - Run `DataCollector.py`. From the window that appears, choose whether to calibrate or not - 
     press "c" to calibrate, press anything else to use default values from `/hsv_ranges.csv`. If
     calibration is chosen, follow the instructions to confirm the HSV values.
@@ -125,7 +125,7 @@ it saves the new images!
 The model trainer trains a CNN using the data provided in one of the `training_data` folders.
 The script will transform all data entries into NxN monochrome images, where N is specified by
 `CONFIG['training_img_size']`. 
-The folder to fetch all images is `CONFIG['training_sets_path']`/`CONFIG['training_set_name']`/
+The folder to fetch all images is `CONFIG['training_data_path']`/`CONFIG['training_set_name']`/
 `CONFIG['training_set_image_type']`.
 The script will take each folder from this directory and will map those to all labels, specified
 in `CONFIG['classes']`. It will be matched on basis `classes[folder_name - 1]`. For example,

@@ -25,7 +25,7 @@ K.set_image_dim_ordering('tf')
 img_rows, img_cols = config.CONFIG['training_img_size'], config.CONFIG['training_img_size']
 batch_size = config.CONFIG['batch_size']
 num_epochs = config.CONFIG['num_epochs']
-results_path = config.CONFIG['path_to_results']
+results_path = config.CONFIG['results_path']
 
 
 def create_model(num_classes):
@@ -61,16 +61,12 @@ def create_model(num_classes):
     model.summary()
     model.get_config()
 
-    # TODO Do i even need this?
-    # layer = model.layers[len(model.layers) - 1]
-    # get_output = K.function([model.layers[0].input, K.learning_phase()], [layer.output, ])
-
     return model
 
 
-def train_model(model, X_train, X_test, Y_train, Y_test):
-    Y_train = np.array(Y_train)
-    Y_test = np.array(Y_test)
+def train_model(model, x_train, x_test, y_train, y_test):
+    y_train = np.array(y_train)
+    y_test = np.array(y_test)
 
     # Save the weights and model under _results/current-timestamp
     create_path_if_does_not_exist(results_path)
@@ -80,19 +76,19 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     create_path_if_does_not_exist(os.path.join(results_path, st))
     save_notes(os.path.join(results_path, st))
     print('saving data...')
-    save_data_info(os.path.join(results_path, st), X_train, X_test, Y_train, Y_test)
+    save_data_info(os.path.join(results_path, st), x_train, x_test, y_train, y_test)
 
     print('started training...')
     csv_logger = CSVLogger(os.path.join(results_path, st, 'model_fit_log.csv'), append=True, separator=';')
     # Add early stopping because the model may reach super-high accuracy in ~5 epochs
     # but if we continue with training it will overfit super hard.
     es = EarlyStopping(monitor='acc', mode='max', verbose=1, patience=3)
-    hist = model.fit(X_train, Y_train, batch_size=batch_size,
+    hist = model.fit(x_train, y_train, batch_size=batch_size,
                      epochs=num_epochs, verbose=1, validation_split=config.CONFIG['validation_split'],
                      callbacks=[csv_logger, es])
     print('finished training...')
 
-    eval = model.evaluate(X_test, Y_test)
+    eval = model.evaluate(x_test, y_test)
     print('eval:', eval)
 
     # Save weights and model.
@@ -110,8 +106,8 @@ def train_model(model, X_train, X_test, Y_train, Y_test):
     print('saving config...')
     save_config(path)
     print('saving confusion matrix...')
-    prediction = model.predict(X_test)
-    save_confusion_matrix(path, prediction, Y_test)
+    prediction = model.predict(x_test)
+    save_confusion_matrix(path, prediction, y_test)
 
 
 def split_data(data_label_tuples):

@@ -12,7 +12,7 @@ from modules.common import create_path_if_does_not_exist
 img_rows, img_cols = CONFIG['training_img_size'], CONFIG['training_img_size']
 batch_size = CONFIG['batch_size']
 num_epochs = CONFIG['num_epochs']
-results_path = CONFIG['path_to_results']
+results_path = CONFIG['results_path']
 
 
 def save_hist(hist, path_to_save):

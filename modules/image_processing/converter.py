@@ -69,8 +69,8 @@ def convert_img_for_test_or_prediction(ip, img):
     # new_img = params['orig_monochrome']
     new_img = params['skin_monochrome']
     # new_img = params['hand_binary_mask']
-    new_img = convert_to_one_channel_monochrome(new_img)
     new_img = resize_to_training_img_size(new_img)
+    new_img = convert_to_one_channel_monochrome(new_img)
     # new_img = np.array([cv2.equalizeHist(new_img)])
     cv2.imshow('to_pred', new_img)
     return new_img, params

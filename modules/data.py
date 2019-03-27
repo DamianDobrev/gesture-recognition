@@ -5,7 +5,7 @@ from config import CONFIG
 
 
 def fetch_saved_hsv():
-    f = open(CONFIG['path_to_hsv_ranges_csv'], 'r')
+    f = open(CONFIG['hsv_ranges_path'], 'r')
     f.readline()
     l_vals = f.readline().split(',')
     u_vals = f.readline().split(',')

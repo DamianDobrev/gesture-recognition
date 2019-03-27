@@ -41,13 +41,13 @@ def save_ranges(frame):
 
     h, s, v = get_center_hsv(frame)
 
-    if cv2.waitKey(1) & 0xFF == ord('s'):
+    key = cv2.waitKey(5) & 0xFF
+
+    if key == ord('s'):
         should_save = not should_save
-
-    if cv2.waitKey(1) & 0xFF == ord('r'):
+    elif key == ord('r'):
         return True
-
-    if cv2.waitKey(1) & 0xFF == ord('c'):
+    elif key == ord('c'):
         return True
 
     if should_save:
@@ -93,11 +93,10 @@ def save_ranges(frame):
     binary_mask = cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR)
     visualise_orig(np.hstack([frame, binary_mask, skin]), texts)
 
-    cv2.waitKey(1)
-
 
 def run_calibrator():
     cap = cv2.VideoCapture(0)
+    cv2.destroyAllWindows()
 
     while True:
         ret, frame = cap.read()

@@ -13,9 +13,9 @@ from modules.visualiser.vis import visualise
 
 size = CONFIG['size']
 
-CLASS = CONFIG['class_to_collect_data']
+CLASS = CONFIG['data_collect_class']
 
-tr_path = CONFIG['training_sets_path']
+tr_path = CONFIG['training_data_path']
 tr_name = CONFIG['training_set_name']
 
 output_dir = os.path.join(tr_path, tr_name)
