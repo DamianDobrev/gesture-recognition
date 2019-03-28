@@ -15,8 +15,6 @@ import numpy as np
 # Just to specify that the images have to be provided in the model in format (X, Y, channels).
 K.set_image_dim_ordering('tf')
 
-size = CONFIG['size']
-
 
 def fetch_predictor_config():
     try:
@@ -40,8 +38,10 @@ def predict_action(ip, orig_frame):
 
     texts = [
         '~~~~ PREDICTION MODE ~~~~',
-        'hsv: ' + str(img_conversions['center_hsv']),
-        'predicted: ' + class_name
+        'results folder: ' + str(CONFIG['predictor_model_dir']),
+        'center HSV: ' + str(img_conversions['center_hsv']),
+        '',
+        'predicted label: ' + class_name
     ]
 
     visualise(img_conversions, texts)
@@ -52,7 +52,9 @@ def predict_action(ip, orig_frame):
 print('Starting predicting mode...')
 
 l_range, u_range = prompt_calibration()
-ip = Processor(size, l_range, u_range)
+cv2.destroyAllWindows()
+
+ip = Processor(CONFIG['size'], l_range, u_range)
 
 image_size, image_processing_kind = fetch_predictor_config()
 

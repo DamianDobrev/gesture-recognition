@@ -113,7 +113,7 @@ def prompt_calibration():
     canvas = Canvas((100, 800, 3))
     text = 'To calibrate HSV values press "c", to use default calibration press any other key.'
     canvas.draw_text(1, text)
-    cv2.imshow('calibration', canvas.print())
+    cv2.imshow(CONFIG['imshow_window_name'], canvas.print())
 
     if cv2.waitKey(0) & 0xFF == ord('c'):
         cv2.destroyAllWindows()

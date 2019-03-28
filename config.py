@@ -9,7 +9,7 @@ CONFIG = {
     # 'predictor_model_dir': '2019-03-26__22-34-50_num_img_1200',
     # The certainty percentage for a gestures in order for it
     # to be considered predicted successfully.
-    'predicted_val_threshold': 98.00,
+    'predicted_val_threshold': 90.00,
 
     # Collecting data parameters:
     'data_collect_class': 10,

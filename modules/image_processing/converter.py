@@ -83,4 +83,5 @@ def convert_img_for_prediction(ip, img, image_processing_kind, image_size):
     new_img = img_conversions[image_processing_kind]
     new_img = resize_to_training_img_size(new_img, image_size)
     new_img = convert_to_one_channel_monochrome(new_img)
+    cv2.imshow('Model sees this.', new_img)
     return new_img, img_conversions
