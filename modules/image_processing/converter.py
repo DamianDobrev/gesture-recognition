@@ -43,6 +43,7 @@ def convert_image(ip, img):
 
     # Crop frame and binary mask to the correct bounding box.
     hand = ip.crop_image_by_square_bbox(img, sq_bbox, size)
+    skin_orig = skin.copy()
     skin = cv2.bitwise_and(skin, skin, mask=binary_mask)
     skin = ip.crop_image_by_square_bbox(skin, sq_bbox, size)
     hand_binary_mask = ip.crop_image_by_square_bbox(binary_mask, sq_bbox, size)
@@ -55,6 +56,7 @@ def convert_image(ip, img):
         'orig_monochrome': orig_monochrome,
         'orig_bboxes': frame_with_rect_sq_bboxes,
         'skin': skin,
+        'skin_orig': skin_orig,
         'skin_monochrome': skin_monochrome,
         'hand': hand,
         'binary_mask': cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR),
@@ -74,3 +76,11 @@ def convert_img_for_test_or_prediction(ip, img):
     # new_img = np.array([cv2.equalizeHist(new_img)])
     cv2.imshow('to_pred', new_img)
     return new_img, params
+
+
+def convert_img_for_prediction(ip, img, image_processing_kind, image_size):
+    img_conversions = convert_image(ip, img)
+    new_img = img_conversions[image_processing_kind]
+    new_img = resize_to_training_img_size(new_img, image_size)
+    new_img = convert_to_one_channel_monochrome(new_img)
+    return new_img, img_conversions

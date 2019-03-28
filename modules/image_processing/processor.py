@@ -15,8 +15,8 @@ def convert_to_one_channel_monochrome(img):
     return img_new
 
 
-def resize_to_training_img_size(img):
-    return cv2.resize(img, (CONFIG['training_img_size'], CONFIG['training_img_size']))
+def resize_to_training_img_size(img, size=CONFIG['training_img_size']):
+    return cv2.resize(img, (size, size))
 
 
 class Processor:

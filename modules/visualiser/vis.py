@@ -4,11 +4,6 @@ import numpy as np
 from modules.image_processing.canvas import Canvas
 from config import CONFIG
 
-# size = CONFIG['size']
-window_name = CONFIG['imshow_window_name']
-
-num_canvas_lines = 8
-
 
 def append_rectangle_in_center(img, color=(255, 255, 0)):
     height, width = img.shape[:2]
@@ -26,13 +21,14 @@ def visualise(img_conversions, texts_list):
     bot_canvas = Canvas((size, 500, 3))
 
     line_num = 0
+    num_canvas_lines = 8
 
     for idx, text in enumerate(texts_list):
         canvas = top_canvas if line_num <= num_canvas_lines else bot_canvas
         canvas.draw_text(idx, text)
         line_num += 1
 
-    stack1 = np.hstack([orig_mark_center, img_conversions['skin'], top_canvas.print()])
+    stack1 = np.hstack([orig_mark_center, img_conversions['skin_orig'], top_canvas.print()])
     stack2 = np.hstack([img_conversions['hand_binary_mask'], img_conversions['skin_monochrome'], bot_canvas.print()])
 
     cv2.imshow(CONFIG['imshow_window_name'], np.vstack([stack1, stack2]))
