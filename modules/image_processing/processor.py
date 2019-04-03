@@ -25,15 +25,6 @@ class Processor:
         self.lower = np.array(lower, dtype="uint8")
         self.upper = np.array(upper, dtype="uint8")
 
-    def crop(self, img, size=None):
-        if size is None:
-            size = self.size
-        h, w = img.shape[:2]
-        h_sp = int((h - size) / 2)
-        w_sp = int((w - size) / 2)
-        frame = img[h_sp:h_sp+size, w_sp:w_sp+size]
-        return frame
-
     def extract_skin(self, img):
         image = img.copy()
         frame_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
@@ -50,6 +41,14 @@ class Processor:
         skin_mask = cv2.dilate(skin_mask, kernel, iterations=2)
 
         return cv2.bitwise_and(image, image, mask=skin_mask)
+
+    @staticmethod
+    def crop(img, size=None):
+        h, w = img.shape[:2]
+        h_sp = int((h - size) / 2)
+        w_sp = int((w - size) / 2)
+        frame = img[h_sp:h_sp+size, w_sp:w_sp+size]
+        return frame
 
     @staticmethod
     def increase_saturation(img):

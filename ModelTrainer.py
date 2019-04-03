@@ -4,7 +4,6 @@ import cv2
 
 from modules import data
 from config import CONFIG
-# from modules.image_processing.converter import convert_img_for_test_or_prediction
 from modules.image_processing.processor import resize_to_training_img_size, convert_to_one_channel_monochrome
 from modules.model.model import split_data, create_model, train_model
 

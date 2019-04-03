@@ -10,7 +10,7 @@ class Canvas:
         return self.canvas
 
     def draw_text(self, line_num=1, text=''):
-        bottom_left_corner = (20, 50 + line_num * 20)
+        bottom_left_corner = (20, 20 + line_num * 20)
         font_scale = 0.4
         font_color = (255, 255, 255)
         line_type = 1

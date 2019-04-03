@@ -6,7 +6,8 @@ import cv2
 
 from modules.calibrator import prompt_calibration
 from config import CONFIG
-from modules.image_processing.converter import convert_img_for_test_or_prediction
+from modules.data import fetch_saved_hsv
+from modules.image_processing.converter import convert_image
 from modules.image_processing.processor import Processor
 from modules.loop import loop
 from modules.visualiser.vis import visualise
@@ -30,18 +31,38 @@ count = 0
 
 is_capturing = False
 
+l_r, u_r = fetch_saved_hsv()
+ip = Processor(CONFIG['size'], l_r, u_r)
 
-def collect_action(ip, frame):
-    global count, is_capturing
 
-    img, img_conversions = convert_img_for_test_or_prediction(ip, frame)
+def setup_image_processor():
+    global ip
+    # Calibrate.
+    l_range, u_range = prompt_calibration(True)
+    ip = Processor(size, l_range, u_range)
+    cv2.destroyAllWindows()
 
-    if cv2.waitKey(1) & 0xFF == ord('s'):
+
+def collect_action(frame):
+    global count, is_capturing, ip
+
+    if ip is None:
+        setup_image_processor()
+
+    img_conversions = convert_image(ip, frame)
+
+    key = cv2.waitKey(5) & 0xFF
+
+    if key == ord('c'):
+        setup_image_processor()
+    if key == ord('s'):
         is_capturing = not is_capturing
         if not is_capturing:
             print('Press "s" to start capturing')
         else:
             print('Started capturing...')
+    if key == ord('q'):
+        exit()
 
     if is_capturing:
         cur_time = datetime.now()
@@ -59,11 +80,21 @@ def collect_action(ip, frame):
             count += 1
             print(count)
 
+    classes = CONFIG['classes']
+    class_with_idx_in_config = classes[CLASS-1] if len(classes) < CLASS-1 else '!!! None !!!'
     texts = [
         '~~~~ DATA COLLECTION MODE ~~~~',
-        'class: ' + str(CLASS),
-        'count: ' + str(count),
-        'press "s" to stop capturing' if is_capturing else 'press "s" to start capturing'
+        '',
+        'Class idx: ' + str(CLASS),
+        'Class with idx in CONFIG: ' + class_with_idx_in_config,
+        'Num of collected imgs: ' + str(count),
+        '',
+        '',
+        '',
+        'Controls:',
+        '- Press "s" to Stop capturing' if is_capturing else 'press "s" to Start capturing',
+        '- Press "c" to Calibrate',
+        '- Press "q" to Quit:'
     ]
 
     visualise(img_conversions, texts)
@@ -76,11 +107,6 @@ print('Press "s" to start capturing')
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
-# Calibrate.
-l_range, u_range = prompt_calibration()
-ip = Processor(size, l_range, u_range)
-cv2.destroyAllWindows()
-
 # Start data collection mode.
-loop(collect_action, ip)
+loop(collect_action)
 # cv2.waitKey(0)

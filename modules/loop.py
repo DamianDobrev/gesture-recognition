@@ -2,19 +2,20 @@ import cv2
 import imutils
 
 from config import CONFIG
+from modules.image_processing.processor import Processor
 
 size = CONFIG['size']
 
 
-def loop(fn, ip):
+def loop(fn):
     cap = cv2.VideoCapture(0)
     cap.set(15, 0.00001)
 
     while True:
         ret, frame = cap.read()
         frame = imutils.resize(frame, height=size)
-        frame = ip.crop(frame, size)
-        should_break = fn(ip, frame)
+        frame = Processor.crop(frame, size)
+        should_break = fn(frame)
         if should_break:
             break
 

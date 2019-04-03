@@ -11,21 +11,19 @@ from modules.visualiser.vis import visualise_orig, append_rectangle_in_center
 
 size = CONFIG['size']
 
-init_lower_range = [100, 100, 100]
-init_upper_range = [101, 101, 101]
 
-
-def reset_everything():
+def reset_everything(l_r=None, u_r=None):
     global l_h, l_s, l_v, h_h, h_s, h_v, lower_range, upper_range, should_save
-    lower_range = init_lower_range
-    upper_range = init_upper_range
+    # Cannot use default args here because they will be mutable, which is dangerous.
+    lower_range = l_r if l_r is not None else [100, 100, 100]
+    upper_range = u_r if u_r is not None else [101, 101, 101]
 
-    l_h = None
-    l_s = None
-    l_v = None
-    h_h = None
-    h_s = None
-    h_v = None
+    l_h = lower_range[0]
+    l_s = lower_range[1]
+    l_v = lower_range[2]
+    h_h = upper_range[0]
+    h_s = upper_range[1]
+    h_v = upper_range[2]
 
     should_save = False
 
@@ -51,6 +49,8 @@ def save_ranges(frame):
         save_hsv_to_file(lower_range, upper_range)
     elif key == ord('c'):
         return True
+    elif key == ord('q'):
+        return exit()
 
     if should_save:
         if l_h is None or h < l_h:
@@ -74,17 +74,20 @@ def save_ranges(frame):
 
     texts = [
         '~~~~ CALIBRATION ~~~~',
+        'is_saving:' + str(should_save),
+        '',
         'Put your hand in the middle and move it so that the ',
         'rectangle captures all the shades of your skin color.',
-        '- Press "t" to toggle hsv calibration ON/OFF.',
-        '- Press "r" to reset the calibration.',
-        '- Press "s" to save current calibration as default.',
-        '- Press "c" to confirm current values.',
+        '- Press "t" to Toggle hsv calibration ON/OFF.',
+        '- Press "r" to Reset the calibration.',
+        '- Press "s" to Save current calibration as default.',
+        '',
+        '- Press "c" to Confirm current values.',
+        '- Press "q" to Quit.',
         '',
         'hsv: ' + str([h, s, v]),
         'lower: ' + str(lower_range),
         'upper: ' + str(upper_range),
-        'is_saving:' + str(should_save),
     ]
 
     skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(ip, frame)
@@ -94,11 +97,12 @@ def save_ranges(frame):
     frame = append_rectangle_in_center(frame)
 
     binary_mask = cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR)
-    visualise_orig(np.hstack([frame, binary_mask, skin]), texts)
+    visualise_orig(np.hstack([frame, binary_mask, skin]), texts, 'Calibrator')
 
 
 def run_calibrator():
     cap = cv2.VideoCapture(0)
+    cap.set(15, 0.00001)
     cv2.destroyAllWindows()
 
     while True:
@@ -112,16 +116,18 @@ def run_calibrator():
     return lower_range, upper_range
 
 
-def prompt_calibration():
+def prompt_calibration(skip_preview=False):
+    global lower_range, upper_range
     canvas = Canvas((100, 800, 3))
     text = 'To calibrate HSV values press "c", to use default calibration press any other key.'
     canvas.draw_text(1, text)
     cv2.imshow(CONFIG['imshow_window_name'], canvas.print())
 
-    if cv2.waitKey(0) & 0xFF == ord('c'):
+    if skip_preview or cv2.waitKey(0) & 0xFF == ord('c'):
         cv2.destroyAllWindows()
 
-        reset_everything()
+        saved_l_r, saved_u_r = fetch_saved_hsv()
+        reset_everything(saved_l_r, saved_u_r)
         print('started calibration...')
         l_range, u_range = run_calibrator()
         cv2.destroyAllWindows()

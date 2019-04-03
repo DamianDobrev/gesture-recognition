@@ -13,25 +13,23 @@ def append_rectangle_in_center(img, color=(255, 255, 0)):
     return img_rect
 
 
-def visualise(img_conversions, texts_list):
+def visualise(img_conversions, texts_list, window_name='Gesture Recognition'):
     orig_mark_center = append_rectangle_in_center(img_conversions['orig_bboxes'])
 
     size = img_conversions['orig'].shape[0]
     top_canvas = Canvas((size, 500, 3))
     bot_canvas = Canvas((size, 500, 3))
 
-    line_num = 0
-    num_canvas_lines = 8
+    num_canvas_lines = 7
 
     for idx, text in enumerate(texts_list):
-        canvas = top_canvas if line_num <= num_canvas_lines else bot_canvas
-        canvas.draw_text(idx, text)
-        line_num += 1
+        canvas = top_canvas if idx < num_canvas_lines else bot_canvas
+        canvas.draw_text(idx % num_canvas_lines, text)
 
     stack1 = np.hstack([orig_mark_center, img_conversions['skin_orig'], top_canvas.print()])
     stack2 = np.hstack([img_conversions['hand_binary_mask'], img_conversions['skin_monochrome'], bot_canvas.print()])
 
-    cv2.imshow(CONFIG['imshow_window_name'], np.vstack([stack1, stack2]))
+    cv2.imshow(window_name, np.vstack([stack1, stack2]))
 
 
 def visualise_prediction(vals, classes):
@@ -56,7 +54,7 @@ def visualise_prediction(vals, classes):
     cv2.imshow('Predictions', canv.print())
 
 
-def visualise_orig(orig_mark_center, texts_list):
+def visualise_orig(orig_mark_center, texts_list, window_name='Gesture Recognition'):
     top_canvas = Canvas((400, orig_mark_center.shape[1], 3))
 
     line_num = 0
@@ -67,4 +65,4 @@ def visualise_orig(orig_mark_center, texts_list):
 
     stack1 = np.vstack([orig_mark_center, top_canvas.print()])
 
-    cv2.imshow(CONFIG['imshow_window_name'], stack1)
+    cv2.imshow(window_name, stack1)
