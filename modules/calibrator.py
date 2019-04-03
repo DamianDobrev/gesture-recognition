@@ -3,7 +3,7 @@ import imutils
 import numpy as np
 
 from config import CONFIG
-from modules.data import fetch_saved_hsv
+from modules.data import fetch_saved_hsv, save_hsv_to_file
 from modules.image_processing.converter import get_center_hsv, extract_bounding_boxes_by_skin_threshold
 from modules.image_processing.processor import Processor
 from modules.image_processing.canvas import Canvas
@@ -43,10 +43,12 @@ def save_ranges(frame):
 
     key = cv2.waitKey(5) & 0xFF
 
-    if key == ord('s'):
+    if key == ord('t'):
         should_save = not should_save
     elif key == ord('r'):
-        return True
+        reset_everything()
+    elif key == ord('s'):
+        save_hsv_to_file(lower_range, upper_range)
     elif key == ord('c'):
         return True
 
@@ -74,9 +76,10 @@ def save_ranges(frame):
         '~~~~ CALIBRATION ~~~~',
         'Put your hand in the middle and move it so that the ',
         'rectangle captures all the shades of your skin color.',
-        '- Press "s" to start/stop hsv saving.',
+        '- Press "t" to toggle hsv calibration ON/OFF.',
+        '- Press "r" to reset the calibration.',
+        '- Press "s" to save current calibration as default.',
         '- Press "c" to confirm current values.',
-        '- Press "r" to restart current values.',
         '',
         'hsv: ' + str([h, s, v]),
         'lower: ' + str(lower_range),

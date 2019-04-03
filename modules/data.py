@@ -15,6 +15,23 @@ def fetch_saved_hsv():
     return l_range, u_range
 
 
+def save_hsv_to_file(l_range, u_range):
+    """
+    Saves the lower range and upper range to the first 2 lines of the
+    hsv_ranges CSV file.
+    :param l_range: lower range
+    :param u_range: upper range
+    """
+    f = open(CONFIG['hsv_ranges_path'], 'r')
+    data = f.readlines()
+    data[0] = data[0] + str(l_range[0]) + ',' + str(l_range[1]) + ',' + str(l_range[2]) + '\n' \
+              + str(u_range[0]) + ',' + str(u_range[1]) + ',' + str(u_range[2]) + '\n\n'
+    f.close()
+    f = open(CONFIG['hsv_ranges_path'], 'w')
+    f.writelines(data)
+    f.close()
+
+
 def fetch_imgs_from_dir(data_dir, extension='png', max_count=100):
     """
     Fetches files from a directory with the specified extension.

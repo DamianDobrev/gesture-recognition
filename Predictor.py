@@ -4,13 +4,12 @@ import cv2
 
 from modules.calibrator import prompt_calibration
 from config import CONFIG
-from modules.image_processing.converter import convert_img_for_test_or_prediction, convert_img_for_prediction
+from modules.image_processing.converter import convert_img_for_prediction
 from modules.image_processing.processor import Processor
 from modules.loop import loop
 from modules.predictor.predictor import predict
 from modules.visualiser.vis import visualise, visualise_prediction
 from keras import backend as K
-import numpy as np
 
 # Just to specify that the images have to be provided in the model in format (X, Y, channels).
 K.set_image_dim_ordering('tf')
