@@ -78,8 +78,8 @@ class Processor:
             img = img_in.copy()
             # Enable for daylight!
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-            img = cv2.erode(img, kernel, iterations=2)
-            img = cv2.dilate(img, kernel, iterations=2)
+            img = cv2.erode(img, kernel, iterations=1)
+            img = cv2.dilate(img, kernel, iterations=1)
             return img
 
         def fill_holes(img_in):
@@ -94,7 +94,7 @@ class Processor:
             # do it in manual way because im_out has weird depth for some reason
             for y in range(0, height):
                 for x in range(0, width):
-                    shit[y, x] = 255 if im_out[y, x] >= 1 else 0
+                    shit[y, x] = 255 if im_out[y, x] > 0 else 0
             return shit
 
         binary_img = smooth_binary(binary_img)
