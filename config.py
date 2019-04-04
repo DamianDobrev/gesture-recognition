@@ -19,12 +19,13 @@ CONFIG = {
     # ...
     'num_training_samples': 1200,
     'training_set_name': 'min_1200_per_class',
-    'training_set_image_type': 'skin',
-    'num_epochs': 12,
+    'training_set_image_type': 'skin_monochrome',
+    'num_epochs': 20,
     'batch_size': 128,
-    'training_img_size': 70,
-    'test_split': 0.15,
+    'training_img_size': 50,
+    'test_split': 0.2,
     'validation_split': 0.2,
+    'augmentation_on': True,
 
     # General. Do not change those.
     # ...

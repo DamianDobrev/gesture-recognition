@@ -8,7 +8,7 @@ import cv2
 from modules.calibrator import prompt_calibration
 from config import CONFIG
 from modules.data import fetch_saved_hsv
-from modules.image_processing.converter import convert_image
+from modules.image_processing.converter import convert_image, augment_image
 from modules.image_processing.processor import Processor
 from modules.loop import loop
 from modules.visualiser.vis import visualise
@@ -18,7 +18,7 @@ size = CONFIG['size']
 CLASS = CONFIG['data_collect_class']
 
 tr_path = CONFIG['training_data_path']
-tr_name = CONFIG['training_set_name']
+tr_name = CONFIG['data_collect_set_name']
 
 output_dir = os.path.join(tr_path, tr_name)
 
@@ -76,6 +76,18 @@ def collect_action(frame):
                 if not os.path.exists(file_output_dir):
                     os.makedirs(file_output_dir)
                 cv2.imwrite(os.path.join(file_output_dir, '%04d.png') % count, img_conversions[key])
+
+            # Augmentation.
+            aug_folder_name = 'skin_monochrome_augmented'
+            file_output_dir = os.path.join(output_dir, aug_folder_name, str(CLASS))
+            if not os.path.exists(file_output_dir):
+                os.makedirs(file_output_dir)
+
+            augmented_images = augment_image(img_conversions['skin_monochrome'])
+
+            for im in augmented_images:
+                cv2.imwrite(os.path.join(file_output_dir, '%04d.png') % count, im)
+
             count += 1
             print(count)
 

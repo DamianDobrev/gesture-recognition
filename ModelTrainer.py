@@ -4,6 +4,7 @@ import cv2
 
 from modules import data
 from config import CONFIG
+from modules.image_processing.converter import augment_image
 from modules.image_processing.processor import resize_to_training_img_size, convert_to_one_channel_monochrome
 from modules.model.model import split_data, create_model, train_model
 
@@ -17,6 +18,12 @@ def correct_images_shapes_in_tuple(tup):
         # will break other stuff that also use that method. Here is the safest place.
         # cv2.waitKey(1)
         return mon
+
+    if CONFIG['augmentation_on']:
+        new_images = []
+        for im in images:
+            new_images.extend(augment_image(im))
+        images = new_images
 
     return list(map(convert_img_for_test_or_prediction_no_params, images)), class_number
 
