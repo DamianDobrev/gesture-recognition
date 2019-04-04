@@ -35,31 +35,33 @@ def visualise(img_conversions, texts_list, window_name='Gesture Recognition'):
 def visualise_prediction(vals, classes, cox, coy, max_size):
     canv = Canvas((340, 900, 3))
 
-    h_thresh = 40
+    # Offset of prediction values.
+    p_y_off = 40
+    p_x_off = 200
     bar_width = 60
     bar_max_height = 250
     spacing = 10
 
     for idx, val in enumerate(vals):
-        x = spacing + bar_width * idx + spacing * idx
+        x = spacing + bar_width * idx + spacing * idx + p_x_off
         color = (0, 50, 255) if val > CONFIG['predicted_val_threshold'] else (0, 255, 255)
         height = int(bar_max_height * val / 100)
-        top = bar_max_height + h_thresh - height
-        cv2.rectangle(canv.print(), (x, top), (x + bar_width, bar_max_height + h_thresh), color, -1)
+        top = bar_max_height + p_y_off - height
+        cv2.rectangle(canv.print(), (x, top), (x + bar_width, bar_max_height + p_y_off), color, -1)
         cv2.putText(canv.print(),
                     classes[int(idx)],
-                    (int(x), bar_max_height + h_thresh + 20),
+                    (int(x), bar_max_height + p_y_off + 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
 
-    # Offset
-    top = 100
-    left = 750
+    # Offset of tracker.
+    t_y_off = 100
+    t_x_off = 50
 
-    cv2.line(canv.print(), (left + 50, top + 0), (left + 50, top + 100), color=(150, 150, 250))
-    cv2.line(canv.print(), (left + 0, top + 50), (left + 100, top + 50), color=(150, 150, 250))
+    cv2.line(canv.print(), (t_x_off + 50, t_y_off + 0), (t_x_off + 50, t_y_off + 100), color=(150, 150, 250))
+    cv2.line(canv.print(), (t_x_off + 0, t_y_off + 50), (t_x_off + 100, t_y_off + 50), color=(150, 150, 250))
 
-    c_x = int(left + (50 / max_size) * -cox + 50)
-    c_y = int(top + (50 / max_size) * coy + 50)
+    c_x = int(t_x_off + (50 / max_size) * -cox + 50)
+    c_y = int(t_y_off + (50 / max_size) * coy + 50)
     cv2.circle(canv.print(), center=(c_x, c_y), radius=5, color=(200, 150, 250), thickness=-5)
 
     cv2.imshow('Predictions', canv.print())

@@ -73,7 +73,7 @@ def predict_action(orig_frame):
     coy = img_conversions['center_offset_y']
     cox = img_conversions['center_offset_x']
     # This number provides an offset on each side, that should account for bounding box being of some size.
-    visualise_prediction(normalized_vals, CONFIG['classes'], cox, coy, CONFIG['size'] - 80)
+    visualise_prediction(normalized_vals, CONFIG['classes'], cox, coy, CONFIG['size'] - 100)
     visualise(img_conversions, texts)
 
 
