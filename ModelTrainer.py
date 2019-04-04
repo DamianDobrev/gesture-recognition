@@ -39,7 +39,7 @@ def run_training():
 
     # Create model
     # ...
-    print('num of cv2.waitKey(1)classes to train: ' + str(len(all_img)))
+    print('num of classes to train: ' + str(len(all_img)))
     model = create_model(len(all_img))
     print('---->>> Training image shape:', x_train[0].shape)
     cv2.imshow('sampleimg', x_train[0])

@@ -22,8 +22,6 @@ tr_name = CONFIG['training_set_name']
 
 output_dir = os.path.join(tr_path, tr_name)
 
-# st = datetime.fromtimestamp(time.time()).strftime('%Y-%m-%d__%H-%M-%S')
-
 last_time = datetime.now()
 
 milliseconds = 200
