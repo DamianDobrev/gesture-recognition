@@ -36,6 +36,8 @@ def to_monochrome(im):
 
 def convert_image(ip, img):
     skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(ip, img)
+    center_offset_y = (sq_bbox[2] - sq_bbox[0]) / 2 + sq_bbox[0] - CONFIG['size'] / 2
+    center_offset_x = (sq_bbox[3] - sq_bbox[1]) / 2 + sq_bbox[1] - CONFIG['size'] / 2
 
     # Create image from the original with red/green boxes to show the boundary.
     frame_with_rect_bbox = ip.add_bounding_box_to_img(img, bbox)
@@ -62,7 +64,9 @@ def convert_image(ip, img):
         'binary_mask': cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR),
         'hand_binary_mask': hand_binary_mask,
         'sq_bbox': sq_bbox,
-        'center_hsv': get_center_hsv(img)
+        'center_hsv': get_center_hsv(img),
+        'center_offset_x': center_offset_x,
+        'center_offset_y': center_offset_y
     }
 
 

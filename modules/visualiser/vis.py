@@ -32,8 +32,8 @@ def visualise(img_conversions, texts_list, window_name='Gesture Recognition'):
     cv2.imshow(window_name, np.vstack([stack1, stack2]))
 
 
-def visualise_prediction(vals, classes):
-    canv = Canvas((340, 800, 3))
+def visualise_prediction(vals, classes, cox, coy, max_size):
+    canv = Canvas((340, 900, 3))
 
     h_thresh = 40
     bar_width = 60
@@ -50,6 +50,17 @@ def visualise_prediction(vals, classes):
                     classes[int(idx)],
                     (int(x), bar_max_height + h_thresh + 20),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.4, color, 1)
+
+    # Offset
+    top = 100
+    left = 750
+
+    cv2.line(canv.print(), (left + 50, top + 0), (left + 50, top + 100), color=(150, 150, 250))
+    cv2.line(canv.print(), (left + 0, top + 50), (left + 100, top + 50), color=(150, 150, 250))
+
+    c_x = int(left + (50 / max_size) * -cox + 50)
+    c_y = int(top + (50 / max_size) * coy + 50)
+    cv2.circle(canv.print(), center=(c_x, c_y), radius=5, color=(200, 150, 250), thickness=-5)
 
     cv2.imshow('Predictions', canv.print())
 

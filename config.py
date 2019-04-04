@@ -13,7 +13,7 @@ CONFIG = {
 
     # Collecting data parameters:
     'data_collect_class': 10,
-    'data_collect_set_name': 'test',  # !!! Contents here will be overwritten by the DataCollector.
+    'data_collect_set_name': 'test2',  # !!! Contents here will be overwritten by the DataCollector.
 
     # Training parameters.
     # ...
@@ -33,6 +33,5 @@ CONFIG = {
     'hsv_ranges_path': os.path.join(package_directory, 'hsv_ranges.csv'),
     'classes': ['stop', 'palm', 'right', 'left', 'hover', 'updown', 'fist', 'peace', 'rock'],
     'size': 200,
-    'imshow_window_name': 'Gesture Recognition',
     'bbox_threshold': 20
 }
