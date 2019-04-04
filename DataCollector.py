@@ -1,5 +1,6 @@
+import getopt
 import os
-import time
+import sys
 from datetime import datetime
 
 import cv2
@@ -87,8 +88,9 @@ def collect_action(frame):
         '',
         'Class idx: ' + str(CLASS),
         'Class with idx in CONFIG: ' + class_with_idx_in_config,
-        'Num of collected imgs: ' + str(count),
+        'Saving to dir: ' + os.path.join(CONFIG['training_data_path'], CONFIG['data_collect_set_name']),
         '',
+        'Num of collected imgs: ' + str(count),
         '',
         '',
         'Controls:',
@@ -99,6 +101,17 @@ def collect_action(frame):
 
     visualise(img_conversions, texts)
 
+
+# Setup config to use args.
+opts, args = getopt.getopt(sys.argv[1:],
+                           "n:c:",
+                           ["data_collect_set_name=", "data_collect_class"])
+
+for opt, arg in opts:
+    if opt in ('-n', '--data_collect_set_name'):
+        CONFIG['data_collect_set_name'] = arg
+    if opt in ('-c', '--data_collect_class'):
+        CONFIG['data_collect_class'] = arg
 
 print('Starting data collection mode...')
 print('Press "s" to start capturing')

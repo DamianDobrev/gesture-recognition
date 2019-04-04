@@ -1,4 +1,5 @@
 import cv2
+import imutils
 import numpy as np
 
 from modules.image_processing.canvas import Canvas
@@ -16,9 +17,9 @@ def append_rectangle_in_center(img, color=(255, 255, 0)):
 def visualise(img_conversions, texts_list, window_name='Gesture Recognition'):
     orig_mark_center = append_rectangle_in_center(img_conversions['orig_bboxes'])
 
-    size = img_conversions['orig'].shape[0]
-    top_canvas = Canvas((size, 500, 3))
-    bot_canvas = Canvas((size, 500, 3))
+    size = CONFIG['vis_size']
+    top_canvas = Canvas((size, 600, 3))
+    bot_canvas = Canvas((size, 600, 3))
 
     num_canvas_lines = 7
 
@@ -26,8 +27,13 @@ def visualise(img_conversions, texts_list, window_name='Gesture Recognition'):
         canvas = top_canvas if idx < num_canvas_lines else bot_canvas
         canvas.draw_text(idx % num_canvas_lines, text)
 
-    stack1 = np.hstack([orig_mark_center, img_conversions['skin_orig'], top_canvas.print()])
-    stack2 = np.hstack([img_conversions['hand_binary_mask'], img_conversions['skin_monochrome'], bot_canvas.print()])
+    tl = imutils.resize(orig_mark_center, size, size)
+    tr = imutils.resize(img_conversions['skin_orig'], size, size)
+    bl = imutils.resize(img_conversions['hand_binary_mask'], size, size)
+    br = imutils.resize(img_conversions['skin_monochrome'], size, size)
+
+    stack1 = np.hstack([tl, tr, top_canvas.print()])
+    stack2 = np.hstack([bl, br, bot_canvas.print()])
 
     cv2.imshow(window_name, np.vstack([stack1, stack2]))
 

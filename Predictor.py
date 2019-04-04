@@ -1,4 +1,6 @@
+import getopt
 import os
+import sys
 
 import cv2
 
@@ -76,6 +78,15 @@ def predict_action(orig_frame):
     visualise_prediction(normalized_vals, CONFIG['classes'], cox, coy, CONFIG['size'] - 100)
     visualise(img_conversions, texts)
 
+
+# Setup config to use args.
+opts, args = getopt.getopt(sys.argv[1:],
+                           "m:",
+                           ["predictor_model_dir="])
+
+for opt, arg in opts:
+    if opt in ('-m', '--predictor_model_dir'):
+        CONFIG['predictor_model_dir'] = arg
 
 print('Starting predicting mode...')
 
