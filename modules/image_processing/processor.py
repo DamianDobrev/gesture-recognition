@@ -26,80 +26,58 @@ class Processor:
         self.upper = np.array(upper, dtype="uint8")
 
     def extract_skin(self, img):
-        image = img.copy()
-        frame_hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-        frame_hsv = cv2.GaussianBlur(frame_hsv, (3, 3), 1)
-        # frame_hsv = cv2.medianBlur(frame_hsv, 3)
+        """
+        Accepts BGR image and extracts skin based on the lower and upper value of the processor.
+        :param img:
+        :return: A BGR image. All none-skin pixels are zeros.
+        """
+        image_copy = img.copy()
+        frame_hsv = cv2.cvtColor(image_copy, cv2.COLOR_BGR2HSV)
+        frame_hsv = cv2.GaussianBlur(frame_hsv, (5, 5), 1)
         frame_hsv = cv2.bilateralFilter(frame_hsv, 3, 45, 45)
-        # frame_hsv = cv2.addWeighted(frame_hsv, 2, frame_hsv, -1, 0)
 
         skin_mask = cv2.inRange(frame_hsv, self.lower, self.upper)
 
         kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-        # 2 erode, 2 dilate also works well.
         skin_mask = cv2.erode(skin_mask, kernel, iterations=3)
         skin_mask = cv2.dilate(skin_mask, kernel, iterations=2)
 
-        return cv2.bitwise_and(image, image, mask=skin_mask)
+        h, w, _ = img.shape
+        binary_mask = np.array(skin_mask).reshape((h, w))
+        skin_separated = cv2.bitwise_and(image_copy, image_copy, mask=skin_mask)
+
+        return skin_separated, binary_mask
 
     @staticmethod
-    def crop(img, size=None):
+    def crop(img, size):
         h, w = img.shape[:2]
         h_sp = int((h - size) / 2)
         w_sp = int((w - size) / 2)
         frame = img[h_sp:h_sp+size, w_sp:w_sp+size]
         return frame
 
-    # @staticmethod
-    # def increase_saturation(img):
-    #     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-    #     img_hsv[..., 1] = img_hsv[..., 1] * 1.4
-    #     return cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
-    #
-    # @staticmethod
-    # def normalize_hist(img):
-    #     img_yuv = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2YUV)
-    #     # equalize the histogram of the Y channel
-    #     img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
-    #     # convert the YUV image back to BGR format
-    #     return cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
-
     @staticmethod
-    def hsv_to_binary(image):
-        binary_mask = cv2.inRange(image, np.array([5, 5, 5], dtype = "uint8"), np.array([179, 255, 255], dtype = "uint8"))
-        binary_mask = cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR)
+    def fill_and_smooth_binary_mask(binary_mask):
+        """
+        Smooths a binary mask and fills all its holes.
+        :param binary_mask: A binary mask of shape (X,X).
+        :return: Smoothened binary mask without holes of shape (X,X).
+        """
 
-        # another =  self.normalize_hist(image.copy())
-        # cv2.imshow('asdsadsa', another)
-        img = cv2.cvtColor(image.copy(), cv2.COLOR_HSV2BGR)
-        binary_img = img[:,:,0] & binary_mask[:,:,0]
-
-        def smooth_binary(img_in):
-            img = img_in.copy()
-            # Enable for daylight!
+        def smooth_binary(mask):
+            mask_in = mask.copy()
             kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (3, 3))
-            img = cv2.erode(img, kernel, iterations=1)
-            img = cv2.dilate(img, kernel, iterations=1)
-            return img
+            img = cv2.dilate(mask_in, kernel, iterations=3)
+            img = cv2.erode(img, kernel, iterations=2)
+            img = np.array(img)
+            return np.bitwise_or(mask_in, img)
 
-        def fill_holes(img_in):
-            kernel = cv2.getStructuringElement(cv2.MORPH_ELLIPSE, (5, 5))
-            output = cv2.morphologyEx(img_in, cv2.MORPH_OPEN, kernel)
-            return output
-
-        def binary_fill_holes(img_in):
+        def fill_holes_binary(img_in):
             im_out = ndimage.binary_fill_holes(img_in).astype(int)
-            shit = img_in
-            height, width = im_out.shape
-            # do it in a manual way because im_out has weird depth for some reason
-            for y in range(0, height):
-                for x in range(0, width):
-                    shit[y, x] = 255 if im_out[y, x] > 0 else 0
-            return shit
+            return cv2.inRange(im_out, np.array([1]), np.array([255]))
 
-        binary_img = smooth_binary(binary_img)
-        binary_img = fill_holes(binary_img)
-        binary_img = binary_fill_holes(binary_img)
+        binary_img = smooth_binary(binary_mask)
+        binary_img = fill_holes_binary(binary_img)
 
         return binary_img
 

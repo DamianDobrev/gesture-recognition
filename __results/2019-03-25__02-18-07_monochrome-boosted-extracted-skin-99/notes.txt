@@ -1,6 +1,0 @@
-# Add notes here about this training/model...
-
-This is the first model that actually works well.
-It manages to recognize 9 classes pretty well.
-It only struggles a bit between hover and fist. I think the training data could be
-a bit better.

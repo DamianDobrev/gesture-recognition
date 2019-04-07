@@ -23,12 +23,13 @@ ip_local = Processor(CONFIG['size'], l_r, u_r)
 
 def fetch_predictor_config():
     try:
-        f = open(os.path.join(CONFIG['results_path'], CONFIG['predictor_model_dir'], 'predictor_config.csv'), 'r')
+        f = open(os.path.join(CONFIG['results_path'], CONFIG['predictor_model_dir'], 'config.csv'), 'r')
         f.readline()
         values = f.readline().split(',')
         f.close()
-        return int(values[0]), str(values[1])
+        return int(values[0]), str(values[2]).strip()
     except:
+        print('ERROR in fetching predictor config. Default values used.')
         return CONFIG['training_img_size'], CONFIG['training_set_image_type']
 
 

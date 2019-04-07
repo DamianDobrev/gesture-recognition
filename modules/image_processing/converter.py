@@ -20,11 +20,14 @@ def get_center_hsv(img):
 
 
 def extract_bounding_boxes_by_skin_threshold(ip, image):
-    skin = ip.extract_skin(image)
+    skin, mask_binary = ip.extract_skin(image)
 
-    binary_skin = ip.hsv_to_binary(skin)
+    mask_binary = ip.fill_and_smooth_binary_mask(mask_binary)
+    mask_binary = ip.find_largest_connected_component(mask_binary)
 
-    mask_binary = ip.find_largest_connected_component(binary_skin)
+    # cv2.imshow('skin', skin)
+    # cv2.imshow('mask_binary', mask_binary)
+    # cv2.imshow('no_holes_mask', no_holes_mask)
 
     # Find bounding boxes.
     bbox = ip.find_bounding_box_of_binary_img_with_single_component(mask_binary)
@@ -48,7 +51,7 @@ def convert_image(ip, img):
     # Crop frame and binary mask to the correct bounding box.
     hand = ip.crop_image_by_square_bbox(img, sq_bbox, size)
     skin_orig = skin.copy()
-    skin = cv2.bitwise_and(skin, skin, mask=binary_mask)
+    skin = cv2.bitwise_and(img, img, mask=binary_mask)
     skin = ip.crop_image_by_square_bbox(skin, sq_bbox, size)
     hand_binary_mask = ip.crop_image_by_square_bbox(binary_mask, sq_bbox, size)
     hand_binary_mask = cv2.cvtColor(hand_binary_mask, cv2.COLOR_GRAY2BGR)
