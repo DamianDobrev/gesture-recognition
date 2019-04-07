@@ -87,7 +87,7 @@ def randomly_rotate_and_change_alpha(im, cw=False):
     rand = random.randint(lower, upper)
     m = cv2.getRotationMatrix2D((100, 100), rand, 1)
     rot = cv2.warpAffine(im, m, (CONFIG['size'], CONFIG['size']))
-    alpha = random.uniform(0.4, 1.6)
+    alpha = random.uniform(0.6, 1.4)
     out = cv2.addWeighted(rot, alpha, rot, 0, 0)
     return out
 
@@ -99,24 +99,24 @@ def randomly_hide_parts(im):
 
     w = random.randint(20, 50)
     h = random.randint(20, 50)
-    x = random.randint(70, 130)
-    y = random.randint(70, 130)
+    x = random.randint(70, 100)
+    y = random.randint(70, 100)
 
     im = cv2.rectangle(im, (y, x), (y+h, x+w), (0, 0, 0), thickness=-1)
     return im
 
 
 def augment_image(img):
-    augmented_imgs = []
-    for index in range(4):
+    augmented_imgs = [img]
+    for index in range(CONFIG['augmentation_count']):
         new_im = randomly_rotate_and_change_alpha(img, index % 2 is 0)
         new_im = randomly_hide_parts(new_im)
         augmented_imgs.append(new_im)
 
     return augmented_imgs
 
-
-# augimg = cv2.imread('/Users/damian/Desktop/indivpr/__training_data/min_1200_per_class/skin_monochrome_augmented/10/0007.png')
+#
+# augimg = cv2.imread('/Users/damian/Desktop/indivpr/__training_data/min_1200_per_class/skin_monochrome/1/0007.png')
 # cv2.imshow('ORIGINAL', augimg)
 # new = augment_image(augimg)
 # for idx, im in enumerate(new):

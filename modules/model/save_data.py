@@ -24,24 +24,24 @@ def save_hist(hist, path_to_save):
     xc = range(len(train_loss))
 
     # Loss.
-    fig_loss = plt.figure(1,figsize=(7,5))
+    fig_loss = plt.figure(1, figsize=(7,5))
+    plt.title('train_loss vs val_loss')
     plt.plot(xc, train_loss)
     plt.plot(xc, val_loss)
-    plt.xlabel('num of Epochs')
-    plt.ylabel('loss')
-    plt.title('train_loss vs val_loss')
+    plt.xlabel('Epoch')
+    plt.ylabel('Loss')
     plt.grid(True)
-    plt.legend(['train','val'])
+    plt.legend(['train', 'val'])
 
     # Acc.
-    fig_acc = plt.figure(2,figsize=(7,5))
+    fig_acc = plt.figure(2, figsize=(7,5))
     plt.plot(xc, train_acc)
     plt.plot(xc, val_acc)
-    plt.xlabel('num of Epochs')
-    plt.ylabel('accuracy')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
     plt.title('train_acc vs val_acc')
     plt.grid(True)
-    plt.legend(['train','val'],loc=4)
+    plt.legend(['train', 'val'], loc=4)
 
     plt.show()
     fig_acc.savefig(os.path.join(path_to_save, 'accuracy.png'))
@@ -113,10 +113,10 @@ def save_confusion_matrix(file_dir, predictions, y_test):
         # Plotting as suggested in this SO answer:
         # https://stackoverflow.com/a/19252430
         labels = CONFIG['classes']
-        fig = plt.figure('conf_matrix')
+        fig = plt.figure('Confusion Matrix')
         ax = fig.add_subplot(111)
         cax = ax.matshow(cm)
-        plt.title('Confusion matrix of the classifier')
+        plt.title('Confusion matrix')
         fig.colorbar(cax)
         ax.set_xticklabels([''] + labels)
         ax.set_yticklabels([''] + labels)
@@ -133,7 +133,7 @@ def save_confusion_matrix(file_dir, predictions, y_test):
     y_pred = np.array(list(map(lambda probabilities:
                                list(np.array(probabilities)).index(max(list(np.array(probabilities))))
                                , predictions)))
-    cm = confusion_matrix(y_pred, y_test)
+    cm = confusion_matrix(y_test, y_pred)
     # Save matrix as .txt.
     f = open(os.path.join(file_dir, 'confusion_matrix.txt'), 'w+')
     f.write(str(cm))

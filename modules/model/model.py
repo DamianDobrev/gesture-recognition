@@ -1,8 +1,5 @@
 import datetime
 import time
-import random
-
-import cv2
 
 from keras import backend as K
 from keras import Sequential
@@ -43,11 +40,14 @@ def create_model(num_classes):
                input_shape=(img_rows, img_cols, 1)),
         Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size), activation='relu'),
         MaxPooling2D(pool_size=(pool_size, pool_size)),
-        Dropout(0.5),
+        Dropout(0.1),
+        # Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size), activation='relu'),
+        # MaxPooling2D(pool_size=(pool_size, pool_size)),
+        # Dropout(0.1),
 
         Flatten(),
         Dense(128, activation='relu'),
-        Dropout(0.5),
+        Dropout(0.1),
         Dense(num_classes, activation='softmax')
     ]
 
@@ -82,7 +82,7 @@ def train_model(model, x_train, x_test, y_train, y_test):
     csv_logger = CSVLogger(os.path.join(results_path, st, 'model_fit_log.csv'), append=True, separator=';')
     # Add early stopping because the model may reach super-high accuracy in ~5 epochs
     # but if we continue with training it will overfit super hard.
-    es = EarlyStopping(monitor='acc', mode='max', verbose=1, patience=3)
+    es = EarlyStopping(monitor='acc', mode='max', verbose=1, patience=5)
     hist = model.fit(x_train, y_train, batch_size=batch_size,
                      epochs=num_epochs, verbose=1, validation_split=config.CONFIG['validation_split'],
                      callbacks=[csv_logger, es])
@@ -99,12 +99,12 @@ def train_model(model, x_train, x_test, y_train, y_test):
 
     # Save model and training info.
     path = os.path.join(results_path, st)
-    print('saving histograms...')
-    save_hist(hist, path)
-    print('saving info...')
-    save_info(path, model, eval)
     print('saving config...')
     save_config(path)
+    print('saving info...')
+    save_info(path, model, eval)
+    print('saving histograms...')
+    save_hist(hist, path)
     print('saving confusion matrix...')
     prediction = model.predict(x_test)
     save_confusion_matrix(path, prediction, y_test)
@@ -117,10 +117,11 @@ def split_data(data_label_tuples):
     for tup in data_label_tuples:
         data = tup[0]
         label = tup[1]
+        print('Class [' + str(label) + '] contains ' + str(len(data)) + ' samples.')
         labels = np.full(len(data), label)
-        data, Label = shuffle(data, labels, random_state=2)
+        data, labels = shuffle(data, labels)
         all_data.extend(data)
-        all_labels.extend(Label)
+        all_labels.extend(labels)
 
     all_data, all_labels = shuffle(all_data, all_labels, random_state=2)
     x_train, x_test, y_train, y_test = \

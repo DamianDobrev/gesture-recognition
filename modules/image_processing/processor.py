@@ -50,19 +50,19 @@ class Processor:
         frame = img[h_sp:h_sp+size, w_sp:w_sp+size]
         return frame
 
-    @staticmethod
-    def increase_saturation(img):
-        img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
-        img_hsv[..., 1] = img_hsv[..., 1] * 1.4
-        return cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
-
-    @staticmethod
-    def normalize_hist(img):
-        img_yuv = cv2.cvtColor(img, cv2.COLOR_BGR2YUV)
-        # equalize the histogram of the Y channel
-        img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
-        # convert the YUV image back to BGR format
-        return cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
+    # @staticmethod
+    # def increase_saturation(img):
+    #     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+    #     img_hsv[..., 1] = img_hsv[..., 1] * 1.4
+    #     return cv2.cvtColor(img_hsv, cv2.COLOR_HSV2BGR)
+    #
+    # @staticmethod
+    # def normalize_hist(img):
+    #     img_yuv = cv2.cvtColor(img.copy(), cv2.COLOR_BGR2YUV)
+    #     # equalize the histogram of the Y channel
+    #     img_yuv[:, :, 0] = cv2.equalizeHist(img_yuv[:, :, 0])
+    #     # convert the YUV image back to BGR format
+    #     return cv2.cvtColor(img_yuv, cv2.COLOR_YUV2BGR)
 
     @staticmethod
     def hsv_to_binary(image):
@@ -91,7 +91,7 @@ class Processor:
             im_out = ndimage.binary_fill_holes(img_in).astype(int)
             shit = img_in
             height, width = im_out.shape
-            # do it in manual way because im_out has weird depth for some reason
+            # do it in a manual way because im_out has weird depth for some reason
             for y in range(0, height):
                 for x in range(0, width):
                     shit[y, x] = 255 if im_out[y, x] > 0 else 0
