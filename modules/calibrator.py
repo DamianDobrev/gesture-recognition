@@ -5,7 +5,7 @@ import numpy as np
 from config import CONFIG
 from modules.data import fetch_saved_hsv, save_hsv_to_file
 from modules.image_processing.converter import get_center_hsv, extract_bounding_boxes_by_skin_threshold
-from modules.image_processing.processor import Processor
+import modules.image_processing.processor as imp
 from modules.image_processing.canvas import Canvas
 from modules.visualiser.vis import visualise_orig, append_rectangle_in_center
 
@@ -15,8 +15,8 @@ size = CONFIG['size']
 def reset_everything(l_r=None, u_r=None):
     global l_h, l_s, l_v, h_h, h_s, h_v, lower_range, upper_range, should_save
     # Cannot use default args here because they will be mutable, which is dangerous.
-    lower_range = l_r if l_r is not None else [100, 100, 100]
-    upper_range = u_r if u_r is not None else [101, 101, 101]
+    lower_range = l_r if l_r is not None else np.array([100, 100, 100])
+    upper_range = u_r if u_r is not None else np.array([101, 101, 101])
 
     l_h = lower_range[0]
     l_s = lower_range[1]
@@ -34,8 +34,7 @@ def save_ranges(frame):
 
     pred_size = 200
     frame = imutils.resize(frame, height=pred_size)
-    ip = Processor(size, lower_range, upper_range)
-    frame = ip.crop(frame, pred_size)
+    frame = imp.crop(frame, pred_size)
 
     h, s, v = get_center_hsv(frame)
 
@@ -69,8 +68,8 @@ def save_ranges(frame):
             h_v = v
 
         if l_h is not None and l_s is not None and l_v is not None and h_h is not None and h_s is not None and h_v:
-            lower_range = [l_h, l_s, l_v]
-            upper_range = [h_h, h_s, h_v]
+            lower_range = np.array([l_h, l_s, l_v])
+            upper_range = np.array([h_h, h_s, h_v])
 
     texts = [
         '~~~~ CALIBRATION ~~~~',
@@ -90,9 +89,9 @@ def save_ranges(frame):
         'upper: ' + str(upper_range),
     ]
 
-    skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(ip, frame)
+    skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(frame, lower_range, upper_range)
 
-    binary_mask = ip.find_largest_connected_component(binary_mask)
+    binary_mask = imp.find_largest_connected_component(binary_mask)
     binary_mask = append_rectangle_in_center(binary_mask)
     frame = append_rectangle_in_center(frame)
 

@@ -5,8 +5,7 @@ import numpy as np
 from PIL import Image
 
 from config import CONFIG
-from modules.image_processing.processor import convert_to_one_channel_monochrome, \
-    resize_to_training_img_size
+import modules.image_processing.processor as imp
 
 size = CONFIG['size']
 
@@ -19,19 +18,15 @@ def get_center_hsv(img):
     return center_px_hsv
 
 
-def extract_bounding_boxes_by_skin_threshold(ip, image):
-    skin, mask_binary = ip.extract_skin(image)
+def extract_bounding_boxes_by_skin_threshold(image, l_hsv_thresh, u_hsv_thresh):
+    skin, mask_binary = imp.extract_skin(image, l_hsv_thresh, u_hsv_thresh)
 
-    mask_binary = ip.fill_and_smooth_binary_mask(mask_binary)
-    mask_binary = ip.find_largest_connected_component(mask_binary)
-
-    # cv2.imshow('skin', skin)
-    # cv2.imshow('mask_binary', mask_binary)
-    # cv2.imshow('no_holes_mask', no_holes_mask)
+    mask_binary = imp.fill_and_smooth_binary_mask(mask_binary)
+    mask_binary = imp.find_largest_connected_component(mask_binary)
 
     # Find bounding boxes.
-    bbox = ip.find_bounding_box_of_binary_img_with_single_component(mask_binary)
-    square_bbox = ip.get_square_bbox(bbox, image)
+    bbox = imp.find_bounding_box_of_binary_img_with_single_component(mask_binary)
+    square_bbox = imp.get_square_bbox(bbox, image)
     return skin, mask_binary, bbox, square_bbox
 
 
@@ -39,8 +34,8 @@ def to_monochrome(im):
     return np.array(Image.fromarray(im).convert('L'))
 
 
-def convert_image(ip, img):
-    skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(ip, img)
+def convert_image(img, l_hsv_thresh, u_hsv_thresh):
+    skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(img, l_hsv_thresh, u_hsv_thresh)
     center_offset_y = (sq_bbox[2] - sq_bbox[0]) / 2 + sq_bbox[0] - CONFIG['size'] / 2
     center_offset_x = (sq_bbox[3] - sq_bbox[1]) / 2 + sq_bbox[1] - CONFIG['size'] / 2
 
@@ -53,15 +48,15 @@ def convert_image(ip, img):
     center_offset_y = in_perc(center_offset_y)
 
     # Create image from the original with red/green boxes to show the boundary.
-    frame_with_rect_bbox = ip.add_bounding_box_to_img(img, bbox)
-    frame_with_rect_sq_bboxes = ip.add_bounding_box_to_img(frame_with_rect_bbox, sq_bbox, (0, 255, 0))
+    frame_with_rect_bbox = imp.add_bounding_box_to_img(img, bbox)
+    frame_with_rect_sq_bboxes = imp.add_bounding_box_to_img(frame_with_rect_bbox, sq_bbox, (0, 255, 0))
 
     # Crop frame and binary mask to the correct bounding box.
-    hand = ip.crop_image_by_square_bbox(img, sq_bbox, size)
+    hand = imp.crop_image_by_square_bbox(img, sq_bbox, size)
     skin_orig = skin.copy()
     skin = cv2.bitwise_and(img, img, mask=binary_mask)
-    skin = ip.crop_image_by_square_bbox(skin, sq_bbox, size)
-    hand_binary_mask = ip.crop_image_by_square_bbox(binary_mask, sq_bbox, size)
+    skin = imp.crop_image_by_square_bbox(skin, sq_bbox, size)
+    hand_binary_mask = imp.crop_image_by_square_bbox(binary_mask, sq_bbox, size)
     hand_binary_mask = cv2.cvtColor(hand_binary_mask, cv2.COLOR_GRAY2BGR)
 
     skin_monochrome = cv2.cvtColor(cv2.equalizeHist(to_monochrome(skin)), cv2.COLOR_GRAY2BGR)
@@ -83,11 +78,11 @@ def convert_image(ip, img):
     }
 
 
-def convert_img_for_prediction(ip, img, image_processing_kind, image_size):
-    img_conversions = convert_image(ip, img)
+def convert_img_for_prediction(img, l_hsv_thresh, u_hsv_thresh, image_processing_kind, image_size):
+    img_conversions = convert_image(img, l_hsv_thresh, u_hsv_thresh)
     new_img = img_conversions[image_processing_kind]
-    new_img = resize_to_training_img_size(new_img, image_size)
-    new_img = convert_to_one_channel_monochrome(new_img)
+    new_img = imp.resize_to_training_img_size(new_img, image_size)
+    new_img = imp.convert_to_one_channel_monochrome(new_img)
     # Uncomment this to visualise what the model sees.
     # cv2.imshow('Model sees this.', new_img)
     return new_img, img_conversions

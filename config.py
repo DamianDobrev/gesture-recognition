@@ -18,7 +18,7 @@ CONFIG = {
     # Collecting data parameters:
     # ...
     'data_collect_class': 10,
-    'data_collect_set_name': 'test2',  # !!! Contents here will be overwritten by the DataCollector.
+    'data_collect_set_name': 'test3',  # !!! Contents here will be overwritten by the DataCollector.
 
     # Training parameters.
     # ...

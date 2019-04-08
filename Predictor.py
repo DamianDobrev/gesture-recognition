@@ -8,7 +8,6 @@ from modules.calibrator import prompt_calibration
 from config import CONFIG
 from modules.data import fetch_saved_hsv
 from modules.image_processing.converter import convert_img_for_prediction
-from modules.image_processing.processor import Processor
 from modules.loop import loop
 from modules.predictor.predictor import predict
 from modules.simulator.simulator import RDS
@@ -18,8 +17,7 @@ from keras import backend as K
 # Just to specify that the images have to be provided in the model in format (X, Y, channels).
 K.set_image_dim_ordering('tf')
 
-l_r, u_r = fetch_saved_hsv()
-ip_local = Processor(CONFIG['size'], l_r, u_r)
+l_hsv_thresh, u_hsv_thresh = fetch_saved_hsv()
 
 rds = RDS()
 
@@ -36,27 +34,25 @@ def fetch_predictor_config():
         return CONFIG['training_img_size'], CONFIG['training_set_image_type']
 
 
-def setup_local_ip():
-    global ip_local
+def setup_hsv_boundaries():
+    global l_hsv_thresh, u_hsv_thresh
     cv2.destroyAllWindows()
-    l_range_n, u_range_n = prompt_calibration(True)
+    l_hsv_thresh, u_hsv_thresh = prompt_calibration(True)
     cv2.destroyAllWindows()
-    ip_local = Processor(CONFIG['size'], l_range_n, u_range_n)
 
 
 def predict_action(orig_frame):
-    # Initially we need to set this up.
-    if ip_local is None:
-        setup_local_ip()
-
     key = cv2.waitKey(5) & 0xFF
 
     if key == ord('c'):
-        setup_local_ip()
+        setup_hsv_boundaries()
     if key == ord('q'):
         exit()
 
-    img_to_predict, img_conversions = convert_img_for_prediction(ip_local, orig_frame, image_processing_kind, image_size)
+    print('l_hsv_thresh',l_hsv_thresh)
+    print('u_hsv_thresh',u_hsv_thresh)
+    img_to_predict, img_conversions = convert_img_for_prediction(orig_frame, l_hsv_thresh, u_hsv_thresh,
+                                                                 image_processing_kind, image_size)
 
     # If the model is trained with shapes (1,50,50), uncomment this line.
     # img_to_predict = np.moveaxis(img_to_predict, -1, 0)

@@ -1,6 +1,8 @@
 import cv2
 import os
 
+import numpy as np
+
 from config import CONFIG
 
 
@@ -12,7 +14,7 @@ def fetch_saved_hsv():
     f.close()
     l_range = [int(l_vals[0]), int(l_vals[1]), int(l_vals[2])]
     u_range = [int(u_vals[0]), int(u_vals[1]), int(u_vals[2])]
-    return l_range, u_range
+    return np.array(l_range), np.array(u_range)
 
 
 def save_hsv_to_file(l_range, u_range):

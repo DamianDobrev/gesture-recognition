@@ -9,51 +9,38 @@ from modules.calibrator import prompt_calibration
 from config import CONFIG
 from modules.data import fetch_saved_hsv
 from modules.image_processing.converter import convert_image, augment_image
-from modules.image_processing.processor import Processor
 from modules.loop import loop
 from modules.visualiser.vis import visualise
 
 size = CONFIG['size']
-
 CLASS = CONFIG['data_collect_class']
-
-tr_path = CONFIG['training_data_path']
-tr_name = CONFIG['data_collect_set_name']
-
-output_dir = os.path.join(tr_path, tr_name)
+training_data_path = CONFIG['training_data_path']
+data_collect_set_name = CONFIG['data_collect_set_name']
+output_dir = os.path.join(training_data_path, data_collect_set_name)
 
 last_time = datetime.now()
-
-milliseconds = 200
-
-count = 0
-
+save_file_interval_ms = 200
+current_count = 0
 is_capturing = False
 
-l_r, u_r = fetch_saved_hsv()
-ip = Processor(CONFIG['size'], l_r, u_r)
+l_hsv_bound, u_hsv_bound = fetch_saved_hsv()
 
 
-def setup_image_processor():
-    global ip
-    # Calibrate.
-    l_range, u_range = prompt_calibration(True)
-    ip = Processor(size, l_range, u_range)
+def setup_hsv_boundaries():
+    global l_hsv_bound, u_hsv_bound
+    l_hsv_bound, u_hsv_bound = prompt_calibration(True)
     cv2.destroyAllWindows()
 
 
 def collect_action(frame):
-    global count, is_capturing, ip
+    global current_count, is_capturing
 
-    if ip is None:
-        setup_image_processor()
-
-    img_conversions = convert_image(ip, frame)
+    img_conversions = convert_image(frame, l_hsv_bound, u_hsv_bound)
 
     key = cv2.waitKey(5) & 0xFF
 
     if key == ord('c'):
-        setup_image_processor()
+        setup_hsv_boundaries()
     if key == ord('s'):
         is_capturing = not is_capturing
         if not is_capturing:
@@ -67,7 +54,7 @@ def collect_action(frame):
         cur_time = datetime.now()
         time_diff = cur_time - last_time
         time_diff_milliseconds = time_diff.total_seconds() * 1000
-        if time_diff_milliseconds >= milliseconds:
+        if time_diff_milliseconds >= save_file_interval_ms:
             # Here we iterate over all preprocessed images from the list and save
             # them into separate folders.
             imgs = ['orig', 'orig_monochrome', 'skin_monochrome', 'hand', 'hand_binary_mask']
@@ -75,7 +62,7 @@ def collect_action(frame):
                 file_output_dir = os.path.join(output_dir, key, str(CLASS))
                 if not os.path.exists(file_output_dir):
                     os.makedirs(file_output_dir)
-                cv2.imwrite(os.path.join(file_output_dir, '%04d.png') % count, img_conversions[key])
+                cv2.imwrite(os.path.join(file_output_dir, '%04d.png') % current_count, img_conversions[key])
 
             # Augmentation.
             aug_folder_name = 'skin_monochrome_augmented'
@@ -86,25 +73,21 @@ def collect_action(frame):
             augmented_images = augment_image(img_conversions['skin_monochrome'])
 
             for im in augmented_images:
-                cv2.imwrite(os.path.join(file_output_dir, '%04d.png') % count, im)
+                cv2.imwrite(os.path.join(file_output_dir, '%04d.png') % current_count, im)
 
-            count += 1
-            print(count)
+            current_count += 1
+            print(current_count)
 
     classes = CONFIG['classes']
     class_with_idx_in_config = classes[CLASS-1] if len(classes) < CLASS-1 else '!!! None !!!'
     texts = [
-        '~~~~ DATA COLLECTION MODE ~~~~',
-        '',
-        'Class idx: ' + str(CLASS),
-        'Class with idx in CONFIG: ' + class_with_idx_in_config,
+        '~~~~ DATA COLLECTION MODE ~~~~ ' + '!!!CAPTURING!!!' if is_capturing else '',
+        'Class with idx ' + str(CLASS) + ' named: ' + class_with_idx_in_config,
         'Saving to dir: ' + os.path.join(CONFIG['training_data_path'], CONFIG['data_collect_set_name']),
-        '',
-        'Num of collected imgs: ' + str(count),
-        '',
+        'Num of collected imgs: ' + str(current_count),
         '',
         'Controls:',
-        '- Press "s" to Stop capturing' if is_capturing else 'press "s" to Start capturing',
+        '- Press "s" to Stop capturing' if is_capturing else '- Press "s" to Start capturing',
         '- Press "c" to Calibrate',
         '- Press "q" to Quit:'
     ]

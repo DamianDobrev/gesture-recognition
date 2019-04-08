@@ -5,7 +5,7 @@ import cv2
 from modules import data
 from config import CONFIG
 from modules.image_processing.converter import augment_image
-from modules.image_processing.processor import resize_to_training_img_size, convert_to_one_channel_monochrome
+import modules.image_processing.processor as imp
 from modules.model.model import split_data, create_model, train_model
 
 
@@ -13,7 +13,7 @@ def correct_images_shapes_in_tuple(tup):
     images, class_number = tup
 
     def convert_img_for_test_or_prediction_no_params(img):
-        mon = convert_to_one_channel_monochrome(resize_to_training_img_size(img))
+        mon = imp.convert_to_one_channel_monochrome(imp.resize_to_training_img_size(img))
         # cv2.imshow() needs this waitKey, but if we put it in the convert_to_one.. it
         # will break other stuff that also use that method. Here is the safest place.
         # cv2.waitKey(1)
