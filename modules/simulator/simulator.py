@@ -56,6 +56,9 @@ class RDS:
         elif gesture_label is 'fist' or gesture_label is 'updown':
             actions.append('up')
 
+        elif gesture_label is 'peace':
+            actions.append('r')
+
         elif gesture_label is 'palm':
             actions.append('down')
 

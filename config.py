@@ -6,11 +6,6 @@ CONFIG = {
     # Prediction parameters.
     # ...
     'predictor_model_dir': '2019-03-27__22-47-28_num_2k_100x100',
-    # 'predictor_model_dir': '2019-04-04__16-59-10_first_augm',
-    # 'predictor_model_dir': '2019-04-04__19-23-58_second_augm',
-    # 'predictor_model_dir': '2019-04-05__03-36-04_augm_100k_imgs',
-    # 'predictor_model_dir': '2019-04-07__11-25-26__used_as_run_05',
-    # 'predictor_model_dir': '2019-04-07__17-18-12',
     # The certainty percentage for a gestures in order for it
     # to be considered as successfully predicted.
     'RDS': False,
