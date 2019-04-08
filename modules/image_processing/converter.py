@@ -39,7 +39,7 @@ def extract_bounding_boxes_by_skin_threshold(image, l_hsv_thresh, u_hsv_thresh):
     skin, mask_binary = imp.extract_skin(image, l_hsv_thresh, u_hsv_thresh)
 
     mask_binary = imp.fill_and_smooth_binary_mask(mask_binary)
-    mask_binary = imp.find_largest_connected_component(mask_binary)
+    mask_binary = imp.isolate_largest_connected_component(mask_binary)
 
     # Find bounding boxes.
     bbox = imp.find_bounding_box_of_binary_img_with_single_component(mask_binary)

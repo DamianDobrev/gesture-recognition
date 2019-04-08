@@ -88,7 +88,7 @@ def fill_and_smooth_binary_mask(binary_mask):
     return binary_img
 
 
-def find_largest_connected_component(binary_mask):
+def isolate_largest_connected_component(binary_mask):
     """
     Finds the largest connected component in a binary image and
     isolates it, meaning that only this component is left in the

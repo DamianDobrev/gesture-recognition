@@ -103,7 +103,7 @@ def calibrate(frame):
 
     skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(frame, lower_range, upper_range)
 
-    binary_mask = imp.find_largest_connected_component(binary_mask)
+    binary_mask = imp.isolate_largest_connected_component(binary_mask)
     binary_mask = draw_rectangle_in_center(binary_mask)
     frame = draw_rectangle_in_center(frame)
 
