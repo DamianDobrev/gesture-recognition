@@ -11,7 +11,7 @@ from modules.image_processing.converter import convert_img_for_prediction
 from modules.image_processing.processor import Processor
 from modules.loop import loop
 from modules.predictor.predictor import predict
-from modules.simulator.simulator import do
+from modules.simulator.simulator import RDS
 from modules.visualiser.vis import visualise, visualise_prediction
 from keras import backend as K
 
@@ -20,6 +20,8 @@ K.set_image_dim_ordering('tf')
 
 l_r, u_r = fetch_saved_hsv()
 ip_local = Processor(CONFIG['size'], l_r, u_r)
+
+rds = RDS()
 
 
 def fetch_predictor_config():
@@ -65,8 +67,6 @@ def predict_action(orig_frame):
         '~~~~ PREDICTION MODE ~~~~',
         '',
         'model directory: ' + str(CONFIG['predictor_model_dir']),
-        'center HSV: ' + str(img_conversions['center_hsv']),
-        '',
         'predicted label: ' + class_name,
         '',
         'Controls:',
@@ -80,17 +80,20 @@ def predict_action(orig_frame):
     visualise_prediction(normalized_vals, CONFIG['classes'], cox, coy, CONFIG['size'] - 100)
     visualise(img_conversions, texts)
 
-    do(class_name, cox, coy)
+    if CONFIG['RDS']:
+        rds.do(class_name, cox, coy)
 
 
 # Setup config to use args.
 opts, args = getopt.getopt(sys.argv[1:],
-                           "m:",
+                           "m:r",
                            ["predictor_model_dir="])
 
 for opt, arg in opts:
     if opt in ('-m', '--predictor_model_dir'):
         CONFIG['predictor_model_dir'] = arg
+    if opt in ('-r', '--RDS'):
+        CONFIG['RDS'] = True
 
 print('Starting predicting mode...')
 

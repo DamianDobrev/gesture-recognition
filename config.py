@@ -13,6 +13,7 @@ CONFIG = {
     # 'predictor_model_dir': '2019-04-07__17-18-12',
     # The certainty percentage for a gestures in order for it
     # to be considered as successfully predicted.
+    'RDS': False,
 
     # Collecting data parameters:
     # ...
@@ -34,7 +35,7 @@ CONFIG = {
 
     # General. Do not change those.
     # ...
-    'predicted_val_threshold': 51.00,
+    'predicted_val_threshold': 85.00,
     'training_data_path': os.path.join(package_directory, '__training_data'),
     'results_path': os.path.join(package_directory, '__results'),
     'hsv_ranges_path': os.path.join(package_directory, 'hsv_ranges.csv'),
