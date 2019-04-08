@@ -12,14 +12,30 @@ size = CONFIG['size']
 
 
 def get_center_hsv(img):
+    """
+    Converts an image to HSV and returns the hsv value of its center pixel.
+    :param img: A BGR image with shape (X,Y,3).
+    :return: HSV value of the center pixel [h,s,v].
+    """
     h, w = img.shape[:2]
     img_hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
     img_hsv = cv2.GaussianBlur(img_hsv, (3, 3), 0)
     center_px_hsv = img_hsv[int(h / 2), int(w / 2)]
-    return center_px_hsv
+    return np.array(center_px_hsv)
 
 
 def extract_bounding_boxes_by_skin_threshold(image, l_hsv_thresh, u_hsv_thresh):
+    """
+    This method encapsulates the calls to few other methods that perform:
+    - skin colored pixels extraction
+    - mask of the skin colored pixels only containing the largest connected component (LCC)
+    - rectangular bounding box around the LCC
+    - square bounding box around the LCC
+    :param image: A BGR image with shape (X,Y,3).
+    :param l_hsv_thresh: Lower skin color threshold of type [h,s,v].
+    :param u_hsv_thresh: Upper skin color threshold of type [h,s,v].
+    :return:
+    """
     skin, mask_binary = imp.extract_skin(image, l_hsv_thresh, u_hsv_thresh)
 
     mask_binary = imp.fill_and_smooth_binary_mask(mask_binary)
@@ -32,10 +48,22 @@ def extract_bounding_boxes_by_skin_threshold(image, l_hsv_thresh, u_hsv_thresh):
 
 
 def to_monochrome(im):
+    """
+    Transforms an image to monochrome.
+    :param im: Image with shape (X,Y,3).
+    :return: Image with shape (X,Y).
+    """
     return np.array(Image.fromarray(im).convert('L'))
 
 
 def convert_image(img, l_hsv_thresh, u_hsv_thresh):
+    """
+    Applies processing techniques to an image and returns some of its derivations.
+    :param img:
+    :param l_hsv_thresh: The lower HSV boundary of skin color.
+    :param u_hsv_thresh: The upper HSV boundary of skin color.
+    :return:
+    """
     skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(img, l_hsv_thresh, u_hsv_thresh)
     center_offset_y = (sq_bbox[2] - sq_bbox[0]) / 2 + sq_bbox[0] - CONFIG['size'] / 2
     center_offset_x = (sq_bbox[3] - sq_bbox[1]) / 2 + sq_bbox[1] - CONFIG['size'] / 2
@@ -90,6 +118,13 @@ def convert_img_for_prediction(img, l_hsv_thresh, u_hsv_thresh, image_processing
 
 
 def randomly_rotate_and_change_alpha(im, cw=False):
+    """
+    Takes an image and randomly applies a rotation and a contrast change.
+    :param im: An image with shape (X,Y,1).
+    :param cw: If true, rotation will be performed clockwise, otherwise it
+        will be performed counter-clockwise.
+    :return: An image with shape (X,Y,1).
+    """
     lower, upper = (10, 30) if cw else (-30, -10)
     rand = random.randint(lower, upper)
     m = cv2.getRotationMatrix2D((100, 100), rand, 1)
@@ -100,33 +135,43 @@ def randomly_rotate_and_change_alpha(im, cw=False):
 
 
 def randomly_hide_parts(im):
+    """
+    Adds a random rectangle somewhere around the middle of the image to
+    hide features.
+    :param im: An image with shape (X,Y,1).
+    :return: An image with shape (X,Y,1). There is 75% chance this image
+        is th original image. 25% there is a random rectangle.
+    """
     # There is 75% chance we don't do anything.
     if random.randint(1, 4) is not 2:
         return im
 
-    w = random.randint(20, 50)
-    h = random.randint(20, 50)
-    x = random.randint(70, 100)
-    y = random.randint(70, 100)
+    s = CONFIG['size']
+    w = random.randint(s/10, s/4)
+    h = random.randint(s/10, s/4)
+    x = random.randint(s/3, s/2)
+    y = random.randint(s/3, s/2)
 
     im = cv2.rectangle(im, (y, x), (y+h, x+w), (0, 0, 0), thickness=-1)
     return im
 
 
-def augment_image(img):
+def augment_image(img, num_augm_imgs=CONFIG['augmentation_count']):
+    """
+    Takes an image and performs random augmentation techniques in order to
+    change its rotation and/or contrast, and to add a black "obstacle"
+    at random place on the image, thus hiding random features.
+    :param img: A grayscale image with shape (X,Y,1).
+    :param num_augm_imgs: The number of images to be added.
+    :return: A list of images, where the first image is the original, and
+        the number of other images depends on `num_augm_imgs`. The shapes
+        will be the same as the shape of the input image - (X,Y,1).
+    """
+
     augmented_imgs = [img]
-    for index in range(CONFIG['augmentation_count']):
+    for index in range(num_augm_imgs):
         new_im = randomly_rotate_and_change_alpha(img, index % 2 is 0)
         new_im = randomly_hide_parts(new_im)
         augmented_imgs.append(new_im)
 
     return augmented_imgs
-
-#
-# augimg = cv2.imread('/Users/damian/Desktop/indivpr/__training_data/min_1200_per_class/skin_monochrome/1/0007.png')
-# cv2.imshow('ORIGINAL', augimg)
-# new = augment_image(augimg)
-# for idx, im in enumerate(new):
-#     cv2.imshow(str(idx), im)
-#
-# cv2.waitKey(0)

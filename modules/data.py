@@ -7,6 +7,12 @@ from config import CONFIG
 
 
 def fetch_saved_hsv():
+    """
+    Fetches the saved HSV values.
+    :return: 2 params, np.arrays:
+        - lower_range in format [h,s,v]
+        - upper_range in format [h,s,v]
+    """
     f = open(CONFIG['hsv_ranges_path'], 'r')
     f.readline()
     l_vals = f.readline().split(',')
@@ -65,6 +71,15 @@ def fetch_imgs_from_dir(data_dir, extension='png', max_count=100):
 
 
 def fetch_training_images(path, max_imgs_per_class):
+    """
+    Fetches images for training from a path.
+    :param path: String representing the directory.
+    :param max_imgs_per_class: The max images per class to be fetched.
+    :return: An array of tuples, where each tuple has a list of images as
+        first arg and a class idx as second arg. E.g.
+        [ ([img1.png, img2.png], 0)
+          ([img3.png, img4.png], 1) ]
+    """
     folders = os.listdir(path)
 
     # Remove hidden files and folders (like .DS_Store)

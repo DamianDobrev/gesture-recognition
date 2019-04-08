@@ -49,8 +49,6 @@ def predict_action(orig_frame):
     if key == ord('q'):
         exit()
 
-    print('l_hsv_thresh',l_hsv_thresh)
-    print('u_hsv_thresh',u_hsv_thresh)
     img_to_predict, img_conversions = convert_img_for_prediction(orig_frame, l_hsv_thresh, u_hsv_thresh,
                                                                  image_processing_kind, image_size)
 
