@@ -26,25 +26,31 @@ results_path = config.CONFIG['results_path']
 
 
 def create_model(num_classes):
+    """
+    Creates a CNN model.
+    :param num_classes: Number of classes this model will accept.
+    :return: Does not return anything.
+    """
+
     # Layers options.
-    num_conv_filters = 50
-    conv_kernel_size = 3
-    pool_size = 2
+    num_conv_filters = 60
+    conv_kernel = (3, 3)
+    max_pooling_pool_size = (2, 2)
 
     model = Sequential()
 
     layers = [
-        Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size),
+        Conv2D(num_conv_filters, conv_kernel,
                padding='valid',
                activation='relu',
                input_shape=(img_rows, img_cols, 1)),
-        Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size), activation='relu'),
-        MaxPooling2D(pool_size=(pool_size, pool_size)),
-        Dropout(0.5),
+        Conv2D(num_conv_filters, conv_kernel, activation='relu'),
+        MaxPooling2D(pool_size=max_pooling_pool_size),
+        Dropout(0.3),
 
         Flatten(),
         Dense(128, activation='relu'),
-        Dropout(0.5),
+        Dropout(0.3),
         Dense(num_classes, activation='softmax')
     ]
 
@@ -62,6 +68,17 @@ def create_model(num_classes):
 
 
 def train_model(model, x_train, x_test, y_train, y_test):
+    """
+    Trains a CNN model.
+    Saves all relevant information and configuration in the same folder
+    as the trained model.
+    :param model: A model to train.
+    :param x_train: Training set.
+    :param x_test: Test set.
+    :param y_train: Training labels.
+    :param y_test: Test labels.
+    :return:
+    """
     y_train = np.array(y_train)
     y_test = np.array(y_test)
 
@@ -108,6 +125,18 @@ def train_model(model, x_train, x_test, y_train, y_test):
 
 
 def split_data(data_label_tuples):
+    """
+    Splits data into training and test sets. Also splits the
+    labels.
+    :param data_label_tuples: Data tuples in format:
+        [ ([img1.png, img2.png], 0)
+          ([img3.png, img4.png], 1) ]
+    :return:
+        - x_train list of images
+        - x_test list of images
+        - y_train list of labels
+        - y_test list of labels
+    """
     all_data = []
     all_labels = []
 

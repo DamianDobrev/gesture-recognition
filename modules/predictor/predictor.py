@@ -10,6 +10,11 @@ model = load_model(os.path.join(CONFIG['results_path'], CONFIG['predictor_model_
 
 
 def normalize_list(l):
+    """
+    Normalizes a list of probabilities to add up to 100.
+    :param l: A list of probabilities that do not add up to 100.
+    :return: Normalized list.
+    """
     l_sum = sum(l)
     norm_val = 100 / l_sum
     new_l = list()
@@ -19,6 +24,14 @@ def normalize_list(l):
 
 
 def predict(img):
+    """
+    Predicts a gesture in an image.
+    :param img: A BGR image with shape (X,Y,3).
+    :return:
+        - Predicted class number (class idx + 1).
+        - Normalized predictions.
+        - Predicted label.
+    """
     prediction = model.predict(np.array([img]))
     normalized = normalize_list(list(prediction[0]))
 

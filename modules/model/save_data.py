@@ -16,6 +16,12 @@ results_path = CONFIG['results_path']
 
 
 def save_hist(hist, path_to_save):
+    """
+    Saves histograms. Uses default styling for everything.
+    :param hist:
+    :param path_to_save:
+    :return:
+    """
     # visualizing losses and accuracy
     train_loss = hist.history['loss']
     val_loss = hist.history['val_loss']
@@ -24,7 +30,7 @@ def save_hist(hist, path_to_save):
     xc = range(len(train_loss))
 
     # Loss.
-    fig_loss = plt.figure(1, figsize=(7,5))
+    fig_loss = plt.figure(1, figsize=(7, 5))
     plt.title('train_loss vs val_loss')
     plt.plot(xc, train_loss)
     plt.plot(xc, val_loss)
@@ -34,7 +40,7 @@ def save_hist(hist, path_to_save):
     plt.legend(['train', 'val'])
 
     # Acc.
-    fig_acc = plt.figure(2, figsize=(7,5))
+    fig_acc = plt.figure(2, figsize=(7, 5))
     plt.plot(xc, train_acc)
     plt.plot(xc, val_acc)
     plt.xlabel('Epoch')
@@ -49,6 +55,10 @@ def save_hist(hist, path_to_save):
 
 
 def save_data_info(file_dir, x_train, x_test, y_train, y_test):
+    """
+    Saves data information.
+    :return:
+    """
     folder_name = 'test_set_processed'
     data_path = os.path.join(file_dir, folder_name)
     create_path_if_does_not_exist(data_path)
@@ -65,12 +75,21 @@ def save_data_info(file_dir, x_train, x_test, y_train, y_test):
 
 
 def save_notes(file_dir):
+    """
+    Saves a notes file.
+    :param file_dir:
+    :return:
+    """
     f = open(os.path.join(file_dir, 'notes.txt'), 'w+')
     f.write('# Add notes here about this training/model...' + '\n')
     f.close()
 
 
 def save_info(file_dir, model, eval):
+    """
+    Saves model and training summary.
+    :return:
+    """
     f = open(os.path.join(file_dir, 'eval.txt'), 'w+')
     f.write('eval_loss=' + str(eval[0]) + '\n')
     f.write('eval_acc =' + str(eval[1]) + '\n\n')
@@ -89,6 +108,11 @@ def save_info(file_dir, model, eval):
 
 
 def save_config(file_dir):
+    """
+    Save the current config that has been used train.
+    :param file_dir: Dir to save config.
+    :return:
+    """
     f = open(os.path.join(file_dir, 'config.csv'), 'w+')
     props = ['training_img_size', 'training_set_name', 'training_set_image_type']
     f.write(','.join(props) + '\n')
