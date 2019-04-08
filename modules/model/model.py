@@ -40,14 +40,11 @@ def create_model(num_classes):
                input_shape=(img_rows, img_cols, 1)),
         Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size), activation='relu'),
         MaxPooling2D(pool_size=(pool_size, pool_size)),
-        Dropout(0.1),
-        # Conv2D(num_conv_filters, (conv_kernel_size, conv_kernel_size), activation='relu'),
-        # MaxPooling2D(pool_size=(pool_size, pool_size)),
-        # Dropout(0.1),
+        Dropout(0.5),
 
         Flatten(),
         Dense(128, activation='relu'),
-        Dropout(0.1),
+        Dropout(0.5),
         Dense(num_classes, activation='softmax')
     ]
 

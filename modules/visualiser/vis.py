@@ -21,7 +21,7 @@ def visualise(img_conversions, texts_list, window_name='Gesture Recognition'):
     top_canvas = Canvas((size, 600, 3))
     bot_canvas = Canvas((size, 600, 3))
 
-    num_canvas_lines = 7
+    num_canvas_lines = 6
 
     for idx, text in enumerate(texts_list):
         canvas = top_canvas if idx < num_canvas_lines else bot_canvas
@@ -66,8 +66,8 @@ def visualise_prediction(vals, classes, cox, coy, max_size):
     cv2.line(canv.print(), (t_x_off + 50, t_y_off + 0), (t_x_off + 50, t_y_off + 100), color=(150, 150, 250))
     cv2.line(canv.print(), (t_x_off + 0, t_y_off + 50), (t_x_off + 100, t_y_off + 50), color=(150, 150, 250))
 
-    c_x = int(t_x_off + (50 / max_size) * -cox + 50)
-    c_y = int(t_y_off + (50 / max_size) * coy + 50)
+    c_x = int(t_x_off + max_size * -cox + 50)
+    c_y = int(t_y_off + max_size * coy + 50)
     cv2.circle(canv.print(), center=(c_x, c_y), radius=5, color=(200, 150, 250), thickness=-5)
 
     cv2.imshow('Predictions', canv.print())

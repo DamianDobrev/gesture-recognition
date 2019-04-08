@@ -11,6 +11,7 @@ from modules.image_processing.converter import convert_img_for_prediction
 from modules.image_processing.processor import Processor
 from modules.loop import loop
 from modules.predictor.predictor import predict
+from modules.simulator.simulator import do
 from modules.visualiser.vis import visualise, visualise_prediction
 from keras import backend as K
 
@@ -78,6 +79,8 @@ def predict_action(orig_frame):
     # This number provides an offset on each side, that should account for bounding box being of some size.
     visualise_prediction(normalized_vals, CONFIG['classes'], cox, coy, CONFIG['size'] - 100)
     visualise(img_conversions, texts)
+
+    do(class_name, cox, coy)
 
 
 # Setup config to use args.

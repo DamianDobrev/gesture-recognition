@@ -13,7 +13,6 @@ CONFIG = {
     # 'predictor_model_dir': '2019-04-07__17-18-12',
     # The certainty percentage for a gestures in order for it
     # to be considered as successfully predicted.
-    'predicted_val_threshold': 51.00,
 
     # Collecting data parameters:
     # ...
@@ -25,21 +24,22 @@ CONFIG = {
     'num_training_samples': 1000,
     'training_set_name': 'min_1200_per_class',
     'training_set_image_type': 'skin_monochrome',
-    'num_epochs': 8,
-    'batch_size': 400,
-    'training_img_size': 50,
-    'test_split': 0.5,
-    'validation_split': 0.3,
+    'num_epochs': 10,
+    'batch_size': 100,
+    'training_img_size': 60,
+    'test_split': 0.2,
+    'validation_split': 0.2,
     'augmentation_on': True,
     'augmentation_count': 2,
 
     # General. Do not change those.
     # ...
+    'predicted_val_threshold': 51.00,
     'training_data_path': os.path.join(package_directory, '__training_data'),
     'results_path': os.path.join(package_directory, '__results'),
     'hsv_ranges_path': os.path.join(package_directory, 'hsv_ranges.csv'),
     'classes': ['stop', 'palm', 'right', 'left', 'hover', 'updown', 'fist', 'peace', 'rock'],
     'size': 200,
-    'vis_size': 150,
+    'vis_size': 100,
     'bbox_threshold': 20
 }

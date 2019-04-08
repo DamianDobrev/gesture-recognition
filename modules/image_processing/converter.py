@@ -44,6 +44,14 @@ def convert_image(ip, img):
     center_offset_y = (sq_bbox[2] - sq_bbox[0]) / 2 + sq_bbox[0] - CONFIG['size'] / 2
     center_offset_x = (sq_bbox[3] - sq_bbox[1]) / 2 + sq_bbox[1] - CONFIG['size'] / 2
 
+    def in_perc(val):
+        val = min(45, val)
+        val = max(-45, val)
+        return int(val) / 45
+
+    center_offset_x = in_perc(center_offset_x)
+    center_offset_y = in_perc(center_offset_y)
+
     # Create image from the original with red/green boxes to show the boundary.
     frame_with_rect_bbox = ip.add_bounding_box_to_img(img, bbox)
     frame_with_rect_sq_bboxes = ip.add_bounding_box_to_img(frame_with_rect_bbox, sq_bbox, (0, 255, 0))
