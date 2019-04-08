@@ -7,7 +7,15 @@ import modules.image_processing.processor as imp
 size = CONFIG['size']
 
 
-def loop(fn):
+def loop_camera_frames(fn):
+    """
+    Starts the web camera, takes snapshots of each frame and
+    calls the passed function with the frame. It stops the camera
+    when the function returns truthy value.
+    :param fn: A function to be called each frame. Params:
+        - the frame as BGR image with shape (X,Y,3).
+    :return: Does not return anything.
+    """
     cap = cv2.VideoCapture(0)
     # This is supposed to prevent the camera from over/underexponsing randomly.
     cap.set(15, 0.00001)

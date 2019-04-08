@@ -6,13 +6,20 @@ from config import CONFIG
 from modules.data import fetch_saved_hsv, save_hsv_to_file
 from modules.image_processing.converter import get_center_hsv, extract_bounding_boxes_by_skin_threshold
 import modules.image_processing.processor as imp
-from modules.image_processing.canvas import Canvas
-from modules.visualiser.vis import visualise_orig, append_rectangle_in_center
+from modules.loop import loop_camera_frames
+from modules.visualiser.vis import visualise_calibration, draw_rectangle_in_center
 
 size = CONFIG['size']
 
 
-def reset_everything(l_r=None, u_r=None):
+def reset_global_values(l_r=None, u_r=None):
+    """
+    Resets the global values for lower and upper skin color ranges and sets
+    the "should save" parameter to False.
+    :param l_r: Initial lower skin color threshold of type [h,s,v].
+    :param u_r: Initial upper skin color threshold of type [h,s,v].
+    :return:
+    """
     global l_h, l_s, l_v, h_h, h_s, h_v, lower_range, upper_range, should_save
     # Cannot use default args here because they will be mutable, which is dangerous.
     lower_range = l_r if l_r is not None else np.array([100, 100, 100])
@@ -28,11 +35,16 @@ def reset_everything(l_r=None, u_r=None):
     should_save = False
 
 
-# frame is BGR
-def save_ranges(frame):
+def calibrate(frame):
+    """
+    Calibrate the lower and upper skin threshold values.
+    :param frame: The current frame taken from the web camera. It is
+        a BGR image with shape (X,Y,3).
+    :return: Does not return anything.
+    """
     global l_h, l_s, l_v, h_h, h_s, h_v, lower_range, upper_range, should_save
 
-    pred_size = 200
+    pred_size = CONFIG['size']
     frame = imutils.resize(frame, height=pred_size)
     frame = imp.crop_from_center(frame, pred_size)
 
@@ -43,7 +55,7 @@ def save_ranges(frame):
     if key == ord('t'):
         should_save = not should_save
     elif key == ord('r'):
-        reset_everything()
+        reset_global_values()
     elif key == ord('s'):
         save_hsv_to_file(lower_range, upper_range)
     elif key == ord('c'):
@@ -92,57 +104,53 @@ def save_ranges(frame):
     skin, binary_mask, bbox, sq_bbox = extract_bounding_boxes_by_skin_threshold(frame, lower_range, upper_range)
 
     binary_mask = imp.find_largest_connected_component(binary_mask)
-    binary_mask = append_rectangle_in_center(binary_mask)
-    frame = append_rectangle_in_center(frame)
+    binary_mask = draw_rectangle_in_center(binary_mask)
+    frame = draw_rectangle_in_center(frame)
 
     binary_mask = cv2.cvtColor(binary_mask, cv2.COLOR_GRAY2BGR)
-    visualise_orig(np.hstack([frame, binary_mask, skin]), texts, 'Calibrator')
+    visualise_calibration(np.hstack([frame, binary_mask, skin]), texts, 'Calibrator')
 
 
 def run_calibrator():
+    """
+    Runs video capture and visualizes the image processing based on the current calibration.
+    Calibration can be changed via the UI controls.
+    :return:
+    """
     cap = cv2.VideoCapture(0)
     cap.set(15, 0.00001)
     cv2.destroyAllWindows()
 
-    while True:
-        ret, frame = cap.read()
-        should_break = save_ranges(frame)
-        if should_break:
-            break
+    loop_camera_frames(calibrate)
 
     cap.release()
     cv2.destroyAllWindows()
     return lower_range, upper_range
 
 
-def prompt_calibration(skip_preview=False):
+def prompt_calibration():
+    """
+    Initializes and runs the calibrator.
+    It initially resets the values based on the current values in the CONFIG['hsv_ranges_path'] file.
+    :return: The new HSV thresholds:
+        - Lower skin color threshold of type [h,s,v] (as calibrated).
+        - Upper skin color threshold of type [h,s,v] (as calibrated).
+    """
     global lower_range, upper_range
-    canvas = Canvas((100, 800, 3))
-    text = 'To calibrate HSV values press "c", to use default calibration press any other key.'
-    canvas.draw_text(1, text)
-    cv2.imshow('Calibrator', canvas.print())
 
-    if skip_preview or cv2.waitKey(0) & 0xFF == ord('c'):
-        cv2.destroyAllWindows()
+    # Initialize.
+    cv2.destroyAllWindows()
+    saved_l_r, saved_u_r = fetch_saved_hsv()
+    reset_global_values(saved_l_r, saved_u_r)
+    print('started calibration...')
 
-        saved_l_r, saved_u_r = fetch_saved_hsv()
-        reset_everything(saved_l_r, saved_u_r)
-        print('started calibration...')
-        l_range, u_range = run_calibrator()
-        cv2.destroyAllWindows()
-        reset_everything()
-        print('~~ finished calibration. HSV values:')
-        print('  - lower: ', str(l_range))
-        print('  - upper: ', str(u_range))
+    # Calibrate.
+    l_range, u_range = run_calibrator()
+    cv2.destroyAllWindows()
+    reset_global_values()
 
-        return l_range, u_range
-    else:
-        l_range_def, u_range_def = fetch_saved_hsv()
-        # l_range_def = [4, 39, 23]
-        # u_range_def = [177, 214, 118]
+    print('~~ finished calibration. HSV values:')
+    print('  - lower: ', str(l_range))
+    print('  - upper: ', str(u_range))
 
-        print('~~ default calibration selected: ')
-        print('  - lower: ', str(l_range_def))
-        print('  - upper: ', str(u_range_def))
-
-        return l_range_def, u_range_def
+    return l_range, u_range

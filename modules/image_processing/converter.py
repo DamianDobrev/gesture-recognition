@@ -6,7 +6,7 @@ from PIL import Image
 
 from config import CONFIG
 import modules.image_processing.processor as imp
-from modules.visualiser.vis import append_bounding_box_to_img
+from modules.visualiser.vis import draw_bounding_box_in_img
 
 size = CONFIG['size']
 
@@ -77,8 +77,8 @@ def convert_image(img, l_hsv_thresh, u_hsv_thresh):
     center_offset_y = in_perc(center_offset_y)
 
     # Create image from the original with red/green boxes to show the boundary.
-    frame_with_rect_bbox = append_bounding_box_to_img(img, bbox)
-    frame_with_rect_sq_bboxes = append_bounding_box_to_img(frame_with_rect_bbox, sq_bbox, (0, 255, 0))
+    frame_with_rect_bbox = draw_bounding_box_in_img(img, bbox)
+    frame_with_rect_sq_bboxes = draw_bounding_box_in_img(frame_with_rect_bbox, sq_bbox, (0, 255, 0))
 
     # Crop frame and binary mask to the correct bounding box.
     hand = imp.crop_image_by_square_bbox(img, sq_bbox, size)

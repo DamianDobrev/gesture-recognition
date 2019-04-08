@@ -1,3 +1,8 @@
+# Run this file with following commands:
+# -n data_collect_set_name
+# -c data_collect_class (number in range 1..(len(CONFIG['classes'])+1).
+# If this is not provided, default values are taken from config.py.
+
 import getopt
 import os
 import sys
@@ -9,7 +14,7 @@ from modules.calibrator import prompt_calibration
 from config import CONFIG
 from modules.data import fetch_saved_hsv
 from modules.image_processing.converter import convert_image, augment_image
-from modules.loop import loop
+from modules.loop import loop_camera_frames
 from modules.visualiser.vis import visualise
 
 size = CONFIG['size']
@@ -26,13 +31,26 @@ is_capturing = False
 l_hsv_bound, u_hsv_bound = fetch_saved_hsv()
 
 
-def setup_hsv_boundaries():
+def calibrate():
+    """
+    Sets up global hsv boundaries for skin color.
+    :return:
+    """
     global l_hsv_bound, u_hsv_bound
-    l_hsv_bound, u_hsv_bound = prompt_calibration(True)
+    l_hsv_bound, u_hsv_bound = prompt_calibration()
     cv2.destroyAllWindows()
 
 
 def collect_action(frame):
+    """
+    Visualizes current frame and preprocessing.
+    If it is capturing, saves the processed images to the appropriate path.
+    There is a UI:
+    - Pressing C starts/stops calibration mode.
+    - Pressing S starts/stops image saving.
+    :param frame: A frame taken by web cam during video.
+    :return: Does not return anything.
+    """
     global current_count, is_capturing
 
     img_conversions = convert_image(frame, l_hsv_bound, u_hsv_bound)
@@ -40,7 +58,7 @@ def collect_action(frame):
     key = cv2.waitKey(5) & 0xFF
 
     if key == ord('c'):
-        setup_hsv_boundaries()
+        calibrate()
     if key == ord('s'):
         is_capturing = not is_capturing
         if not is_capturing:
@@ -109,10 +127,9 @@ for opt, arg in opts:
 print('Starting data collection mode...')
 print('Press "s" to start capturing')
 
-# Take care of folders.
+# Take care of folders' existence.
 if not os.path.exists(output_dir):
     os.makedirs(output_dir)
 
 # Start data collection mode.
-loop(collect_action)
-# cv2.waitKey(0)
+loop_camera_frames(collect_action)
