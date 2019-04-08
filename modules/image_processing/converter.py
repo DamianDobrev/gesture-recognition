@@ -6,6 +6,7 @@ from PIL import Image
 
 from config import CONFIG
 import modules.image_processing.processor as imp
+from modules.visualiser.vis import append_bounding_box_to_img
 
 size = CONFIG['size']
 
@@ -48,8 +49,8 @@ def convert_image(img, l_hsv_thresh, u_hsv_thresh):
     center_offset_y = in_perc(center_offset_y)
 
     # Create image from the original with red/green boxes to show the boundary.
-    frame_with_rect_bbox = imp.add_bounding_box_to_img(img, bbox)
-    frame_with_rect_sq_bboxes = imp.add_bounding_box_to_img(frame_with_rect_bbox, sq_bbox, (0, 255, 0))
+    frame_with_rect_bbox = append_bounding_box_to_img(img, bbox)
+    frame_with_rect_sq_bboxes = append_bounding_box_to_img(frame_with_rect_bbox, sq_bbox, (0, 255, 0))
 
     # Crop frame and binary mask to the correct bounding box.
     hand = imp.crop_image_by_square_bbox(img, sq_bbox, size)
@@ -81,7 +82,7 @@ def convert_image(img, l_hsv_thresh, u_hsv_thresh):
 def convert_img_for_prediction(img, l_hsv_thresh, u_hsv_thresh, image_processing_kind, image_size):
     img_conversions = convert_image(img, l_hsv_thresh, u_hsv_thresh)
     new_img = img_conversions[image_processing_kind]
-    new_img = imp.resize_to_training_img_size(new_img, image_size)
+    new_img = cv2.resize(new_img, (image_size, image_size))
     new_img = imp.convert_to_one_channel_monochrome(new_img)
     # Uncomment this to visualise what the model sees.
     # cv2.imshow('Model sees this.', new_img)

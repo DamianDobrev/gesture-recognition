@@ -13,7 +13,8 @@ def correct_images_shapes_in_tuple(tup):
     images, class_number = tup
 
     def convert_img_for_test_or_prediction_no_params(img):
-        mon = imp.convert_to_one_channel_monochrome(imp.resize_to_training_img_size(img))
+        size = CONFIG['training_img_size']
+        mon = imp.convert_to_one_channel_monochrome(cv2.resize(img, (size, size)))
         # cv2.imshow() needs this waitKey, but if we put it in the convert_to_one.. it
         # will break other stuff that also use that method. Here is the safest place.
         # cv2.waitKey(1)

@@ -15,7 +15,7 @@ def loop(fn):
     while True:
         ret, frame = cap.read()
         frame = imutils.resize(frame, height=size)
-        frame = imp.crop(frame, size)
+        frame = imp.crop_from_center(frame, size)
         should_break = fn(frame)
         if should_break:
             break

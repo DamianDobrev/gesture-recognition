@@ -34,7 +34,7 @@ def save_ranges(frame):
 
     pred_size = 200
     frame = imutils.resize(frame, height=pred_size)
-    frame = imp.crop(frame, pred_size)
+    frame = imp.crop_from_center(frame, pred_size)
 
     h, s, v = get_center_hsv(frame)
 

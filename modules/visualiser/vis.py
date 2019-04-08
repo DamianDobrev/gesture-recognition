@@ -14,6 +14,11 @@ def append_rectangle_in_center(img, color=(255, 255, 0)):
     return img_rect
 
 
+
+def append_bounding_box_to_img(img, bbox, color=(30, 0, 255), thresh=0):
+    return cv2.rectangle(img.copy(), (bbox[1] - thresh, bbox[0] - thresh), (bbox[3] + thresh, bbox[2] + thresh), color, 2)
+
+
 def visualise(img_conversions, texts_list, window_name='Gesture Recognition'):
     orig_mark_center = append_rectangle_in_center(img_conversions['orig_bboxes'])
 

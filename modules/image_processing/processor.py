@@ -9,23 +9,26 @@ from config import CONFIG
 
 
 def convert_to_one_channel_monochrome(img):
+    """
+    Converts a BGR image to a single channel monochrome image.
+    :param img: BGR image, with shape (X,Y,3).
+    :return: The image in monochrome, with shape (X,Y,1).
+    """
     img_new = np.array(Image.fromarray(img).convert('L'))
     img_new = np.array([img_new])  # shape should be like (1, 50, 50)
     img_new = np.moveaxis(img_new, 0, -1)  # shape should be like (50, 50, 1)
     return img_new
 
 
-def resize_to_training_img_size(img, size=CONFIG['training_img_size']):
-    return cv2.resize(img, (size, size))
-
-
 def extract_skin(img, l_hsv_bound, h_hsv_bound):
     """
-    Accepts BGR image and extracts skin based on the lower and upper value of the processor.
-    :param img:
-    :param h_hsv_bound:
-    :param l_hsv_bound:
-    :return: A BGR image. All none-skin pixels are zeros.
+    Accepts BGR image and extracts skin based on the lower and upper value from params.
+    :param img: A BGR image. Shape will be of type (X,Y,3).
+    :param h_hsv_bound: An array, list or np array with 3 values, [hue, sat, val].
+    :param l_hsv_bound: An array, list or np array with 3 values, [hue, sat, val].
+    :return: Returns 2 elements
+        - A BGR image with shape (X,Y,3). All none-skin pixels are zeros.
+        - A binary image with shape (X,Y).
     """
     image_copy = img.copy()
     frame_hsv = cv2.cvtColor(image_copy, cv2.COLOR_BGR2HSV)
@@ -45,7 +48,14 @@ def extract_skin(img, l_hsv_bound, h_hsv_bound):
     return skin_separated, binary_mask
 
 
-def crop(img, size):
+def crop_from_center(img, size):
+    """
+    Takes a BGR (or even any other) image and size and crops the
+    centered square of the image.
+    :param img: BGR (or even any other) image.
+    :param size: The size of the square that will be cropped.
+    :return:
+    """
     h, w = img.shape[:2]
     h_sp = int((h - size) / 2)
     w_sp = int((w - size) / 2)
@@ -56,8 +66,8 @@ def crop(img, size):
 def fill_and_smooth_binary_mask(binary_mask):
     """
     Smooths a binary mask and fills all its holes.
-    :param binary_mask: A binary mask of shape (X,X).
-    :return: Smoothened binary mask without holes of shape (X,X).
+    :param binary_mask: A binary mask of shape (X,Y).
+    :return: Smoothened binary mask without holes of shape (X,Y).
     """
 
     def smooth_binary(mask):
@@ -78,17 +88,40 @@ def fill_and_smooth_binary_mask(binary_mask):
     return binary_img
 
 
-def find_largest_connected_component(img):
-    new_img = np.zeros_like(img)  # step 1
-    for val in np.unique(img)[1:]:  # step 2
-        mask = np.uint8(img == val)  # step 3
-        labels, stats = cv2.connectedComponentsWithStats(mask, 4)[1:3]  # step 4
-        largest_label = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])  # step 5
-        new_img[labels == largest_label] = val  # step 6
+def find_largest_connected_component(binary_mask):
+    """
+    Finds the largest connected component in a binary image and
+    isolates it, meaning that only this component is left in the
+    frame as-it-is, everything else is set to 0.
+    :param binary_mask: A binary mask of shape (X,Y).
+    :return: A binary mask of shape (X,Y) with only 1 connected
+        component.
+    """
+
+    new_img = np.zeros_like(binary_mask)
+    for val in np.unique(binary_mask)[1:]:
+        second_mask = np.uint8(binary_mask == val)
+        labels, stats = cv2.connectedComponentsWithStats(second_mask, 4)[1:3]
+        biggest_label = 1 + np.argmax(stats[1:, cv2.CC_STAT_AREA])
+        new_img[labels == biggest_label] = val
     return new_img
 
 
 def find_bounding_box_of_binary_img_with_single_component(binary_img, thresh=CONFIG['bbox_threshold']):
+    """
+    Finds the bounding box of the connected component inside a
+    binary image and returns it.
+    :param binary_img: A binary image of shape (X,Y).
+    :param thresh: A threshold working as a padding to be applied.
+    :return: An array of 4 values:
+        - [0]: The Y coordinate of the top-left point.
+        - [1]: The X coordinate of the top-left point.
+        - [2]: The Y coordinate of the bottom-right point.
+        - [3]: The X coordinate of the bottom-right point.
+    In the case such component does not exist, or is very small,
+    then [0,0,0,0] is returned.
+    """
+
     mask_label = label(binary_img)
     props = regionprops(mask_label)
     height, width = binary_img.shape
@@ -102,11 +135,7 @@ def find_bounding_box_of_binary_img_with_single_component(binary_img, thresh=CON
     return [0, 0, 0, 0]  # Default, if the mask is full of zeros we need to return something.
 
 
-def add_bounding_box_to_img(img, bbox, color=(30, 0, 255), thresh=0):
-    return cv2.rectangle(img.copy(), (bbox[1] - thresh, bbox[0] - thresh), (bbox[3] + thresh, bbox[2] + thresh), color, 2)
-
-
-def get_square_bbox(bbox, image, thresh=0):
+def get_square_bbox(rect_bbox, image, thresh=0):
     """
     Takes an image and a rectangular bbox, and returns a squared bbox which "envelops" the rectangular bbox.
     Threshold can be provided as well. TODO test the threshold.
@@ -116,11 +145,11 @@ def get_square_bbox(bbox, image, thresh=0):
     """
     image_height, image_width = image.shape if image.ndim == 1 else image.shape[:2]
 
-    new_top_left_x = bbox[1] - thresh
-    new_bottom_right_x = bbox[3] + thresh
+    new_top_left_x = rect_bbox[1] - thresh
+    new_bottom_right_x = rect_bbox[3] + thresh
 
-    new_top_left_y = bbox[0] - thresh
-    new_bottom_right_y = bbox[2] + thresh
+    new_top_left_y = rect_bbox[0] - thresh
+    new_bottom_right_y = rect_bbox[2] + thresh
 
     new_bbox_width = new_bottom_right_x - new_top_left_x
     new_bbox_height = new_bottom_right_y - new_top_left_y
@@ -146,7 +175,7 @@ def get_square_bbox(bbox, image, thresh=0):
         px_to_add_to_each_side = (new_bbox_width - new_bbox_height) / 2
         new_top_left_y, new_bottom_right_y = crop_axis(new_top_left_y, new_bottom_right_y, image_height, px_to_add_to_each_side, new_bbox_width)
 
-    # These are important assertions because I get weird values.
+    # This assures a proper error will be thrown if something is sketchy.
     if new_bottom_right_y > image_height:
         raise ArithmeticError('Bottom edge should not be higher than frame height.')
     elif new_top_left_y < 0:
@@ -159,10 +188,18 @@ def get_square_bbox(bbox, image, thresh=0):
     return [int(new_top_left_y), int(new_top_left_x), int(new_bottom_right_y), int(new_bottom_right_x)]
 
 
-def crop_image_by_square_bbox(frame, square_bbox, size_width):
+def crop_image_by_square_bbox(img, square_bbox, size_width):
+    """
+    By given an image and a square bbox, it crops the image around the bbox.
+    If the bbox is not square, an AttributeError is thrown.
+    :param img: The image to crop with shape (X,Y,3).
+    :param square_bbox: The square bouunding box.
+    :param size_width: The size to which crop.
+    :return: Am image of size (size_width, size_width).
+    """
     if square_bbox[2]-square_bbox[0] != square_bbox[3]-square_bbox[1]:
         raise AttributeError('crop_image_by_square_bbox should only accept square bboxes')
-    new_frame = frame[square_bbox[0]:square_bbox[2], square_bbox[1]:square_bbox[3]]
+    new_frame = img[square_bbox[0]:square_bbox[2], square_bbox[1]:square_bbox[3]]
     height, width = new_frame.shape[:2]
-    to_return = new_frame if width > 0 and height > 0 else frame
+    to_return = new_frame if width > 0 and height > 0 else img
     return cv2.resize(to_return, (size_width, size_width))
