@@ -46,11 +46,14 @@ This, when ran and then started by following the description in the user interfa
 - I have set the config value for the dataset name to be `new_dataset`. This means that all data you create will be saved under `./__training_data/new_dataset`. To change this name, specify it via parameter `-n <your_dataset_name>`.
 - I have set the config value for the class for which the program will collect data to be `0` (the 0th class in the classes list: `['stop', 'palm', 'right', 'left', 'hover', 'updown', 'fist', 'peace', 'rock']`). To change the class, specify it via parameter `-c <your_class_index>`.
 - This will overwrite any previous files!
+```
+python DataCollector.py -n <your_dataset_name> -c <your_class_index>  
+```
 
 ## Run Model Trainer.
 This will train a new model and will create a new unique folder for it inside the `./__results` directory, so don't worry nothing will get overwritten.
 ```
-python ModelTrainer.py -d <dataset_name> -n <num_training_samples> -b <batch_size> -a <augmentation_count> -e <num_epochs>
+python ModelTrainer.py -d <your_dataset_name> -n <num_training_samples> -b <batch_size> -a <augmentation_count> -e <num_epochs>
 ```
 All params are optional, without specifying anything it will run with the defaults, which are in `config.py` in the root dir. Alternatively to specifying params, you may find it easier to just modify the values in that file. 
 
