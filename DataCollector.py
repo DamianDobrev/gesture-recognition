@@ -15,7 +15,7 @@ from config import CONFIG
 from modules.data import fetch_saved_hsv
 from modules.image_processing.converter import convert_image, augment_image
 from modules.loop import loop_camera_frames
-from modules.visualiser.vis import visualise
+from modules.visualiser.visualiser import visualise
 
 size = CONFIG['size']
 CLASS = CONFIG['data_collect_class']

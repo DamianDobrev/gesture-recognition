@@ -12,6 +12,5 @@ class Simulator:
         self.sim = RDS()
 
     def perform_action(self, gesture, offset_x=0, offset_y=0):
-        print('shit', CONFIG['simulator_on'])
         if CONFIG['simulator_on']:
             self.sim.do(gesture, offset_x, offset_y)

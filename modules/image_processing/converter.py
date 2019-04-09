@@ -6,7 +6,7 @@ from PIL import Image
 
 from config import CONFIG
 import modules.image_processing.processor as imp
-from modules.visualiser.vis import draw_bounding_box_in_img
+from modules.visualiser.visualiser import draw_bounding_box_in_img
 
 size = CONFIG['size']
 

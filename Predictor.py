@@ -15,7 +15,7 @@ from modules.image_processing.converter import convert_img_for_prediction
 from modules.loop import loop_camera_frames
 from modules.predictor.predictor import predict
 from modules.simulator.Sim import Simulator
-from modules.visualiser.vis import visualise, visualise_prediction_result
+from modules.visualiser.visualiser import visualise, visualise_prediction_result
 from keras import backend as K
 
 # Just to specify that the images have to be provided in the model in format (X, Y, channels).

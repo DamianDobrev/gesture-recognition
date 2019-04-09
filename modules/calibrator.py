@@ -7,7 +7,7 @@ from modules.data import fetch_saved_hsv, save_hsv_to_file
 from modules.image_processing.converter import get_center_hsv, extract_bounding_boxes_by_skin_threshold
 import modules.image_processing.processor as imp
 from modules.loop import loop_camera_frames
-from modules.visualiser.vis import visualise_calibration, draw_rectangle_in_center
+from modules.visualiser.visualiser import visualise_calibration, draw_rectangle_in_center
 
 size = CONFIG['size']
 
