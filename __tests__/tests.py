@@ -5,7 +5,7 @@ import numpy as np
 
 from modules.image_processing.processor import isolate_largest_connected_component, get_square_bbox, \
     crop_image_by_square_bbox
-from modules.model.model import split_data
+from modules.cnn.model import split_data
 
 
 class TestImageMethods(unittest.TestCase):

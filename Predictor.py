@@ -14,7 +14,7 @@ from modules.data import fetch_saved_hsv
 from modules.image_processing.converter import convert_img_for_prediction
 from modules.loop import loop_camera_frames
 from modules.predictor.predictor import predict
-from modules.simulator.simulator import RDS
+from modules.simulator.Sim import Simulator
 from modules.visualiser.vis import visualise, visualise_prediction_result
 from keras import backend as K
 
@@ -23,7 +23,7 @@ K.set_image_dim_ordering('tf')
 
 l_hsv_thresh, u_hsv_thresh = fetch_saved_hsv()
 
-rds = RDS()
+simulator = Simulator()
 
 
 def fetch_predictor_config():
@@ -59,7 +59,7 @@ def setup_hsv_boundaries():
 def predict_gesture_and_visualise_result(raw_image):
     """
     Predicts the gesture on the raw_image and visualizes the result.
-    If CONFIG['RDS'] is set to True, it also sends commands to RDS.
+    If CONFIG['simulator_on'] is set to True, it also sends commands to RDS.
     :param raw_image: A BGR image of shape (X,Y,3).
     :return: Does not return anything.
     """
@@ -95,20 +95,19 @@ def predict_gesture_and_visualise_result(raw_image):
     visualise_prediction_result(normalized_vals, CONFIG['classes'], cox, coy, CONFIG['size'] - 100)
     visualise(img_conversions, texts)
 
-    if CONFIG['RDS']:
-        rds.do(class_name, cox, coy)
+    simulator.perform_action(class_name, cox, coy)
 
 
 # Setup config to use args.
 opts, args = getopt.getopt(sys.argv[1:],
-                           "m:r",
-                           ["predictor_model_dir="])
+                           "m:s")
 
 for opt, arg in opts:
-    if opt in ('-m', '--predictor_model_dir'):
+    opt = opt.strip()
+    if opt == '-m':
         CONFIG['predictor_model_dir'] = arg
-    if opt in ('-r', '--RDS'):
-        CONFIG['RDS'] = True
+    if opt == '-s':
+        CONFIG['simulator_on'] = True
 
 print('Starting predicting mode...')
 

@@ -8,7 +8,7 @@ CONFIG = {
     'predictor_model_dir': '2019-03-27__22-47-28_num_2k_100x100',
     # The certainty percentage for a gestures in order for it
     # to be considered as successfully predicted.
-    'RDS': False,
+    'simulator_on': False,
 
     # Collecting data parameters:
     # ...

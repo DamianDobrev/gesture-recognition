@@ -15,7 +15,7 @@ import os
 
 # Just to specify that the images have to be provided in the model in format (X, Y, channels).
 from modules.common import create_path_if_does_not_exist
-from modules.model.save_data import save_notes, save_data_info, save_hist, save_info, save_config, save_confusion_matrix
+from modules.cnn.save_data import save_notes, save_data_info, save_hist, save_info, save_config, save_confusion_matrix
 
 K.set_image_dim_ordering('tf')
 

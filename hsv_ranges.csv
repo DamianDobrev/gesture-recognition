@@ -1,4 +1,10 @@
 h,s,v
+2,99,8
+176,255,116
+
+2,99,8
+176,255,116
+
 3,45,71
 101,214,255
 
@@ -90,3 +96,19 @@ h,s,v
 
   - lower:  [3, 71, 22]
   - upper:  [177, 243, 159]
+
+
+// Assume min_boundary and max_boundary are defined,
+// and middle_boundary is the average of those.
+is_calibration_on = False
+
+l_boundary = middle_boundary
+u_boundary = middle_boundary
+while calibration is turned on:
+	center_px_hsv = get_center_px_hsv()
+	if hue, val., or sat. of center_px_hsv < hue, val., or sat. of l_boundary:
+		l_boundary hue, val., or sat. = hue, val., or sat. of center_px_hsv
+	else if hue, val., or sat. of center_px_hsv > hue, val., or sat. of u_boundary:
+		u_boundary hue, val., or sat. = hue, val., or sat. of center_px_hsv
+	
+	update is_calibration_on

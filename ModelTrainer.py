@@ -6,7 +6,7 @@ from modules import data
 from config import CONFIG
 from modules.image_processing.converter import augment_image
 import modules.image_processing.processor as imp
-from modules.model.model import split_data, create_model, train_model
+from modules.cnn.model import split_data, create_model, train_model
 
 
 def correct_images_shapes_in_tuple(tup):
