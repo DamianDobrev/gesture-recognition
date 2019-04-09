@@ -122,7 +122,7 @@ for opt, arg in opts:
     if opt in ('-n', '--data_collect_set_name'):
         CONFIG['data_collect_set_name'] = arg
     if opt in ('-c', '--data_collect_class'):
-        CONFIG['data_collect_class'] = arg
+        CONFIG['data_collect_class'] = int(arg)
 
 print('Starting data collection mode...')
 print('Press "s" to start capturing')

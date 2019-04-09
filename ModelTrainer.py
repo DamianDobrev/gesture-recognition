@@ -1,4 +1,6 @@
+import getopt
 import os
+import sys
 
 import cv2
 
@@ -58,6 +60,21 @@ def run_training():
     train_model(model, x_train, x_test, y_train, y_test)
     cv2.destroyAllWindows()
 
+
+# Setup config to use args.
+opts, args = getopt.getopt(sys.argv[1:], "n:c:")
+
+for opt, arg in opts:
+    if opt == '-d':
+        CONFIG['training_set_name'] = arg
+    if opt == '-n':
+        CONFIG['num_training_samples'] = int(arg)
+    if opt == '-b':
+        CONFIG['batch_size'] = int(arg)
+    if opt == '-a':
+        CONFIG['augmentation_count'] = int(arg)
+    if opt == '-e':
+        CONFIG['num_epochs'] = int(arg)
 
 run_training()
 cv2.waitKey(0)

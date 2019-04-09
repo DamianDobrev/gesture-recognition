@@ -12,8 +12,8 @@ CONFIG = {
 
     # Collecting data parameters:
     # ...
-    'data_collect_class': 10,
-    'data_collect_set_name': 'test3',  # !!! Contents here will be overwritten by the DataCollector.
+    'data_collect_class': 0,
+    'data_collect_set_name': 'new_dataset',  # !!! Contents here will be overwritten by the DataCollector.
 
     # Training parameters.
     # ...
@@ -21,8 +21,8 @@ CONFIG = {
     'training_set_name': 'min_1200_per_class',
     'training_set_image_type': 'skin_monochrome',
     'num_epochs': 10,
-    'batch_size': 100,
-    'training_img_size': 60,
+    'batch_size': 300,
+    'training_img_size': 50,
     'test_split': 0.2,
     'validation_split': 0.2,
     'augmentation_on': True,
