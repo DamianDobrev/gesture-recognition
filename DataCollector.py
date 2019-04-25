@@ -17,12 +17,6 @@ from modules.image_processing.converter import convert_image, augment_image
 from modules.loop import loop_camera_frames
 from modules.visualiser.visualiser import visualise
 
-size = CONFIG['size']
-CLASS = CONFIG['data_collect_class']
-training_data_path = CONFIG['training_data_path']
-data_collect_set_name = CONFIG['data_collect_set_name']
-output_dir = os.path.join(training_data_path, data_collect_set_name)
-
 last_time = datetime.now()
 save_file_interval_ms = 200
 current_count = 0
@@ -123,6 +117,12 @@ for opt, arg in opts:
         CONFIG['data_collect_set_name'] = arg
     if opt in ('-c', '--data_collect_class'):
         CONFIG['data_collect_class'] = int(arg)
+
+size = CONFIG['size']
+CLASS = CONFIG['data_collect_class']
+training_data_path = CONFIG['training_data_path']
+data_collect_set_name = CONFIG['data_collect_set_name']
+output_dir = os.path.join(training_data_path, data_collect_set_name)
 
 print('Starting data collection mode...')
 print('Press "s" to start capturing')

@@ -62,7 +62,7 @@ def run_training():
 
 
 # Setup config to use args.
-opts, args = getopt.getopt(sys.argv[1:], "n:c:")
+opts, args = getopt.getopt(sys.argv[1:], "d:n:b:a:e:")
 
 for opt, arg in opts:
     if opt == '-d':

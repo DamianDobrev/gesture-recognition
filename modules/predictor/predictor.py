@@ -6,7 +6,7 @@ from keras.models import load_model
 
 from config import CONFIG
 
-model = load_model(os.path.join(CONFIG['results_path'], CONFIG['predictor_model_dir'], 'model.hdf5'))
+model = None
 
 
 def normalize_list(l):
@@ -32,6 +32,10 @@ def predict(img):
         - Normalized predictions.
         - Predicted label.
     """
+    global model
+    if model is None:
+        model = load_model(os.path.join(CONFIG['results_path'], CONFIG['predictor_model_dir'], 'model.hdf5'))
+
     prediction = model.predict(np.array([img]))
     normalized = normalize_list(list(prediction[0]))
 

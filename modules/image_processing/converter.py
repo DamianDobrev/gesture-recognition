@@ -147,10 +147,10 @@ def randomly_hide_parts(im):
         return im
 
     s = CONFIG['size']
-    w = random.randint(s/10, s/4)
-    h = random.randint(s/10, s/4)
-    x = random.randint(s/3, s/2)
-    y = random.randint(s/3, s/2)
+    w = random.randint(int(s/10), int(s/4))
+    h = random.randint(int(s/10), int(s/4))
+    x = random.randint(int(s/3), int(s/2))
+    y = random.randint(int(s/3), int(s/2))
 
     im = cv2.rectangle(im, (y, x), (y+h, x+w), (0, 0, 0), thickness=-1)
     return im

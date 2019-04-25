@@ -16,8 +16,10 @@ I have tested this on macOS and it works. I am mostly confident but not complete
 0. Open terminal and navigate to the folder where this project is.
 1. Make sure python3 is installed `python3 --version`. 
 If it is not installed, please install it from here: https://www.python.org/downloads/
-2. `python3 -m pip install --user virtualenv`
-3. `python3 -m virtualenv env`
+2. (if MacOS - skip this step!) `python3 -m pip install --user virtualenv`
+3. Depending on the OS:
+    - MacOS: `python3 -m venv env`
+    - Not MacOS: `python3 -m virtualenv env`
 4. `source env/bin/activate` Use this to activate the environment.
 5. `pip install -r requirements.txt`
 

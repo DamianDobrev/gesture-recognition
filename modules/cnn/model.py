@@ -19,11 +19,6 @@ from modules.cnn.save_data import save_notes, save_data_info, save_hist, save_in
 
 K.set_image_dim_ordering('tf')
 
-img_rows, img_cols = config.CONFIG['training_img_size'], config.CONFIG['training_img_size']
-batch_size = config.CONFIG['batch_size']
-num_epochs = config.CONFIG['num_epochs']
-results_path = config.CONFIG['results_path']
-
 
 def create_model(num_classes):
     """
@@ -31,6 +26,7 @@ def create_model(num_classes):
     :param num_classes: Number of classes this model will accept.
     :return: Does not return anything.
     """
+    img_rows, img_cols = config.CONFIG['training_img_size'], config.CONFIG['training_img_size']
 
     # Layers options.
     num_conv_filters = 60
@@ -82,6 +78,8 @@ def train_model(model, x_train, x_test, y_train, y_test):
     y_train = np.array(y_train)
     y_test = np.array(y_test)
 
+    results_path = config.CONFIG['results_path']
+
     # Save the weights and model under _results/current-timestamp
     create_path_if_does_not_exist(results_path)
 
@@ -97,8 +95,8 @@ def train_model(model, x_train, x_test, y_train, y_test):
     # Add early stopping because the model may reach super-high accuracy in ~5 epochs
     # but if we continue with training it will overfit super hard.
     es = EarlyStopping(monitor='acc', mode='max', verbose=1, patience=5)
-    hist = model.fit(x_train, y_train, batch_size=batch_size,
-                     epochs=num_epochs, verbose=1, validation_split=config.CONFIG['validation_split'],
+    hist = model.fit(x_train, y_train, batch_size=config.CONFIG['batch_size'],
+                     epochs=config.CONFIG['num_epochs'], verbose=1, validation_split=config.CONFIG['validation_split'],
                      callbacks=[csv_logger, es])
     print('finished training...')
 
